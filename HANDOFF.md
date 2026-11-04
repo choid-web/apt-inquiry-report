@@ -1,7 +1,7 @@
 # 아파트 문의 성과 점검 및 공급 확보 방향 — 작업 인계 (2026-11-04)
 
 ## 산출물
-- 게시된 리포트(아티팩트): https://claude.ai/artifact/172WXuc455x31odxkETufo (Version 60)
+- 게시된 리포트(아티팩트): https://claude.ai/artifact/172WXuc455x31odxkETufo (Version 61)
   - 새 세션에서 같은 링크를 유지하려면 Artifact 도구로 이 URL을 먼저 read 한 뒤 url 지정해 publish.
 - 소스: rpt/template.html (`__DATA__`, `__FONT__` 자리표시자) + rpt/data.json → `python3 rpt/build.py` (pyftsubset 필요: `pip install fonttools brotli`)
 - 확인용 스크린샷: rpt/shot2.js (Playwright, preview.html#장id)
@@ -10,6 +10,7 @@
 (11/4 회의 반영 재구성) 본문 = 진단 → 전략
 01 summary 요약 / 02 diag 현황 진단(지역별 매물·커버리지·조회·1만 명당 문의·문의) / 03 position 공급 위치 점검 / 04 strategy 집중 영업 방향 (PRO는 별도 장 없이 요약 끝 참고 한 줄)
 부록 A 실거래, B 문의, C 공급, D 2025년 10월, E 기준, F 추가 분석, G 문의 기준 후보(1,185곳), H 우선 단지 목록(518곳), I trend PRO 1명당 추이, J shift PRO 문의 분해, K market 거래량·시장, L coverage 공급 위치 상세, M action 후보 선정 비교, N opt2 대안: 추정 기준(2-b), O opt3 대안: 사무소 보유 매물(안3)
+- 부록 P(regions) 지역 구분 추가: 9개 시장지역별 시군구(코호트 리포트 지역별 표와 m2b.py 분류 대조). 목차의 기준·기초 자료 묶음에 포함.
 - 부록은 탭 하나('부록 참고자료', id appendix)로 묶고 목차(기준·기초 자료 A~E / 추가 분석 F·I~L / 후보 단지 M·N·O·H·G) → 하위 페이지로 이동. 하위 페이지 주소는 기존 장 id(#top, #opt3 등) 그대로 유지. 코드: template의 AGROUPS·ADESC·APXC.
 - 02장 지역 표 데이터: template 안 `const RG`(사용자 제공 코호트 리포트 지역별 주간 표를 8/31~9/20 vs 10/12~11/1로 재합산). 1만 명당 문의 = 문의 건수 ÷ 조회 유저(3주 합) × 10,000.
 
