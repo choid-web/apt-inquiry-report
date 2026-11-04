@@ -7,11 +7,12 @@ RAW={'lst1101':'1793793594631',
  'view_zb':['1793671188264','1793671212280','1793671222480','1793671245111'],
  'view_hg':['1793671271840','1793671354075','1793671409267','1793671504205','1793671536524'],
  'inq_post':('1793632662548','1793632667621'),
- 'attr':['1793698669848','1793698679630','1793698755798','1793698766252']+json.loads(os.environ.get('ATTR_EXTRA','[]')),   # danji_id, total_households, completion_date (≥100세대) + 미만
- 'loc':['1793698778567','1793698854635','1793698858119']+json.loads(os.environ.get('LOC_EXTRA','[]')),
+ 'attr':['1793698669848','1793698679630','1793698755798','1793698766252','1793797700567','1793797846116','1793797857945'],   # danji_id, total_households, completion_date (≥100세대) + 미만
+ 'loc':['1793698778567','1793698854635','1793698858119','1793797700567','1793797846116','1793797857945'],
  'name':['1793699062180','1793699073344','1793699077906']+json.loads(os.environ.get('NAME_EXTRA','[]')),
  'occ':os.environ.get('OCC_KEY','1793672184712'),'rent':'1793671603360',
- 'naver':json.loads(os.environ.get('NAVER_KEYS','[]'))}
+ 'naver':['1793798443424','1793798459869','1793798473120','1793798486794'],
+ 'naver_total':['1793798331390','1793798339963','1793798416710','1793798427556']}
 l01={sid(r['zbhg_ods_item.area_danji_id']):float(r['zb_daily_operating_item.open_item_cnt'] or 0) for r in L(RAW['lst1101']) if r['zbhg_ods_item.area_danji_id'] is not None}
 V=collections.Counter();W=collections.Counter()
 for f in RAW['view_zb']:
@@ -42,7 +43,13 @@ for f in RAW['naver']:
         if r[k+'has_pro_product']=='Y': x['nv_pro']+=n
         elif r[k+'has_other_product']=='Y': x['nv_lb']+=n
         else: x['nv_none']+=n
+# 추가 조회 5곳(11/4, 조회값 옮겨 적음): 모두 PRO·LIGHT·BASIC 미이용 중개사만
+for d,a,n in [('37461',76,7),('20103',29,9),('6073',25,11),('1904',16,8),('18385',10,3)]:
+    NV[d]={'nv_lst':a,'nv_pro':0,'nv_lb':0,'nv_none':n}
 HAVE_NV=bool(RAW['naver'])
+NVT={}
+for f in RAW['naver_total']:
+    for r in L(f): NVT[sid(r[k+'area_danji_id'])]=r[k+'unique_article_cnt'] or 0
 def ym(cd):
     m=re.match(r'(\d{4})년(\d{2})월',cd or '');return int(m[1])*12+int(m[2])-1 if m else None
 NOW=2026*12+10;W0,W1=NOW,2027*12+4
@@ -52,7 +59,7 @@ def eligible(i,a,min_hh):
     if o in('분양','입주예정') or (t is not None and t>NOW):
         if t is None or not(W0<=t<=W1): return None
         if o=='입주예정' or (t is not None and t>NOW and o!='분양'):
-            if HAVE_NV and NV.get(i,{}).get('nv_lst',0)<=0: return None
+            if NVT.get(i,0)<=0: return None
             return '입주예정'
         return '분양'
     return ''
@@ -74,11 +81,11 @@ def top(U,grp,n=500):
 T02=top(U,'0~2');T39=top(U,'3~9')
 old=set(str(r['id']) for r in json.load(open(os.path.join(HERE,'../../data/top518.json'))))
 def row(u,rank):
-    i=u['id'];nv=NV.get(i) if HAVE_NV else None
+    i=u['id'];nv=NV.get(i) if i in NV else ({'nv_lst':0,'nv_pro':0,'nv_lb':0,'nv_none':0} if NVT.get(i,0)==0 else None)
     return {'rank':rank,'region':reg(u.get('l1'),u.get('l2')),'local1':u.get('l1'),'local2':u.get('l2'),'danji_id':int(i),'name':NM.get(i,''),
             'households':int(u['hh']),'completion':u['cd'],'bucket':u['bk'],'zb_listings_1101':u['lst'],'danji_view_users':int(u['view']),
             'wish':int(u['wish']),'inquiry_ref':int(u['inq']),'score':u['score'],'pro_entry':PRO.get(i,''),
-            'naver_listings':int(nv['nv_lst']) if nv else None,'naver_agents_pro':nv['nv_pro'] if nv else None,'naver_agents_light_basic':nv['nv_lb'] if nv else None,'naver_agents_none':nv['nv_none'] if nv else None,
+            'naver_listings':int(NVT.get(i,0)),'naver_agents_pro':nv['nv_pro'] if nv else None,'naver_agents_light_basic':nv['nv_lb'] if nv else None,'naver_agents_none':nv['nv_none'] if nv else None,
             'note':u['note'],'in_old_518':i in old,'region_assoc_mark':''}
 L02=[row(u,k+1) for k,u in enumerate(T02)];L39=[row(u,k+1) for k,u in enumerate(T39)]
 comb=sorted(T02+T39,key=lambda u:(-u['score'],-u['view']));LC=[row(u,k+1) for k,u in enumerate(comb)]
