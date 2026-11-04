@@ -37,6 +37,16 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .tabs button[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .tabs button[aria-current="true"] .n { color: inherit; opacity: .8; }
 .tabs button:focus-visible, .nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.subnav { display: flex; flex-wrap: wrap; gap: 6px; }
+.subnav button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 11px; cursor: pointer; white-space: nowrap; }
+.subnav button .n, .apx-item .n { font-family: var(--f-num); color: var(--muted); margin-right: 5px; font-size: 12px; }
+.subnav button[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.subnav button[aria-current="true"] .n { color: inherit; opacity: .8; }
+.apx-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.apx-item { text-align: left; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; }
+.apx-item:hover { border-color: var(--accent); }
+.apx-item .d { color: var(--muted); font-size: 13px; }
+.subnav button:focus-visible, .apx-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 40px; }
 .ch { max-width: 980px; margin-inline: auto; display: flex; flex-direction: column; gap: 22px; }
 .eyebrow { font-family: var(--f-num); font-size: 12.5px; color: var(--accent); letter-spacing: .06em; }
@@ -635,26 +645,58 @@ C.push({ id: 'top', no: 'H', name: '부록 우선 단지 목록', render: () => 
   after: () => { const q = document.getElementById('top-q'), n = document.getElementById('top-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 12);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
-APPX.sort((a, b) => a.no.localeCompare(b.no)).forEach((c) => C.push(c));
+APPX.forEach((c) => C.push(c));
+/* ---------------- appendix group ---------------- */
+const MAIN = C.filter((c) => /^\d/.test(c.no)), APX = C.filter((c) => !/^\d/.test(c.no)).sort((a, b) => a.no.localeCompare(b.no));
+const AXI = (no) => APX.findIndex((c) => c.no === no);
+const AGROUPS = [['기준·기초 자료', ['A', 'B', 'C', 'D', 'E']], ['추가 분석', ['F', 'I', 'J', 'K', 'L']], ['후보 단지', ['M', 'N', 'O', 'H', 'G']]];
+const ADESC = { A: '주차별 매매·전세·월세 실거래', B: '주차별 문의(플랫폼·유형·거래유형)', C: '주차별 노출 매물·구독 중개사와 단위당 문의', D: '2025년 10월 문의 급증 배경', E: '집계 기준과 해석 시 주의', F: 'PRO 추적·전년 비교·상관·같은 집 겹침 상세', I: 'PRO 중개사 1명당 문의 월별·주차별 추이', J: 'PRO 문의 감소를 등급 이동별로 분해', K: '거래량·시장 참고 자료', L: '같은 구간 비교와 시군구별 PRO 문의 변화', M: '후보 선정 기준 3안 비교', N: '추정 기준보다 매물이 부족한 단지 500곳', O: 'N사 매물을 많이 가진 사무소 기준 500곳', H: '관심도 기준 우선 단지 518곳', G: '이전 문의 기준 후보 1,185곳' };
+const AORDER = AGROUPS.flatMap((g) => g[1].map(AXI)).filter((k) => k >= 0);
+const aname = (c) => c.name.replace(/^부록\s*/, '');
+let ax = -1;
+const APXC = { id: 'appendix', no: '부록', name: '참고자료',
+  render: () => {
+    if (ax < 0) return hdr('부록', '참고자료', '상세 분석·기준·단지 목록') + '<p class="lede">본문을 보완하는 자료입니다. 아래에서 보고 싶은 항목을 고르세요.</p>'
+      + `<div id="apx-nav">${AGROUPS.map(([g, nos]) => `<div class="panel"><h3>${g}</h3><div class="apx-list">${nos.map(AXI).filter((k) => k >= 0).map((k) => `<button type="button" class="apx-item" data-ax="${k}"><span><span class="n">${APX[k].no}</span><b>${aname(APX[k])}</b></span><span class="d">${ADESC[APX[k].no] || ''}</span></button>`).join('')}</div></div>`).join('')}</div>`;
+    const s = APX[ax];
+    return `<nav class="subnav" id="apx-nav" aria-label="부록 선택"><button type="button" data-ax="-1">목차</button>${AORDER.map((k) => `<button type="button" data-ax="${k}" aria-current="${k === ax}"><span class="n">${APX[k].no}</span>${aname(APX[k])}</button>`).join('')}</nav>` + s.render();
+  },
+  after: () => {
+    const nav = document.getElementById('apx-nav');
+    if (nav) nav.onclick = (e) => { const b = e.target.closest('[data-ax]'); if (b) { ax = +b.dataset.ax; go(cur); } };
+    const s = ax >= 0 ? APX[ax] : null; if (s && s.after) s.after();
+  } };
+C.length = 0; MAIN.forEach((c) => C.push(c)); C.push(APXC);
 /* ---------------- navigation ---------------- */
 const tabs = document.getElementById('tabs'), box = document.getElementById('ch'), prev = document.getElementById('prev'), next = document.getElementById('next');
-C.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `<span class="n">${c.no}</span>${c.name}`; b.onclick = () => go(i); tabs.appendChild(b); });
+C.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `<span class="n">${c.no}</span>${c.name}`; b.onclick = () => { if (C[i] === APXC) ax = -1; go(i); }; tabs.appendChild(b); });
 let cur = 0, after = null;
+const inApx = () => C[cur] === APXC;
+const lab = (c) => `${c.no} ${aname(c)}`;
 function go(i, push = true) {
   cur = Math.max(0, Math.min(C.length - 1, i)); const c = C[cur];
   box.innerHTML = c.render(); after = c.after || null; if (after) after();
   [...tabs.children].forEach((b, j) => b.setAttribute('aria-current', j === cur ? 'true' : 'false'));
   tabs.children[cur].scrollIntoView({ block: 'nearest', inline: 'center' });
-  prev.hidden = cur === 0; next.hidden = cur === C.length - 1;
-  if (cur > 0) prev.innerHTML = `<small>이전</small>${C[cur - 1].no} ${C[cur - 1].name}`;
-  if (cur < C.length - 1) next.innerHTML = `<small>다음</small>${C[cur + 1].no} ${C[cur + 1].name}`;
-  if (push && location.hash !== '#' + c.id) history.replaceState(null, '', '#' + c.id);
+  if (inApx()) {
+    const k = ax < 0 ? -1 : AORDER.indexOf(ax);
+    prev.hidden = false; prev.innerHTML = k < 0 ? `<small>이전</small>${C[cur - 1].no} ${C[cur - 1].name}` : `<small>이전</small>${k === 0 ? '부록 목차' : lab(APX[AORDER[k - 1]])}`;
+    next.hidden = k >= AORDER.length - 1; if (!next.hidden) next.innerHTML = `<small>다음</small>${lab(APX[AORDER[k + 1]])}`;
+  } else {
+    prev.hidden = cur === 0; next.hidden = cur === C.length - 1;
+    if (cur > 0) prev.innerHTML = `<small>이전</small>${C[cur - 1].no} ${C[cur - 1].name}`;
+    if (cur < C.length - 1) next.innerHTML = `<small>다음</small>${C[cur + 1].no} ${C[cur + 1].name}`;
+  }
+  const hid = inApx() && ax >= 0 ? APX[ax].id : c.id;
+  if (push && location.hash !== '#' + hid) history.replaceState(null, '', '#' + hid);
   window.scrollTo(0, 0);
 }
-prev.onclick = () => go(cur - 1); next.onclick = () => go(cur + 1);
-document.addEventListener('keydown', (e) => { if (e.target.closest && e.target.closest('input,textarea')) return; if (e.key === 'ArrowRight') go(cur + 1); if (e.key === 'ArrowLeft') go(cur - 1); });
-const fromHash = () => { const i = C.findIndex((c) => '#' + c.id === location.hash); return i < 0 ? 0 : i; };
-window.addEventListener('hashchange', () => { const i = fromHash(); if (i !== cur) go(i, false); });
+const goPrev = () => { if (inApx()) { const k = ax < 0 ? -1 : AORDER.indexOf(ax); if (k < 0) go(cur - 1); else { ax = k === 0 ? -1 : AORDER[k - 1]; go(cur); } } else go(cur - 1); };
+const goNext = () => { if (inApx()) { const k = ax < 0 ? -1 : AORDER.indexOf(ax); if (k < AORDER.length - 1) { ax = AORDER[k + 1]; go(cur); } } else { if (C[cur + 1] === APXC) ax = -1; go(cur + 1); } };
+prev.onclick = goPrev; next.onclick = goNext;
+document.addEventListener('keydown', (e) => { if (e.target.closest && e.target.closest('input,textarea')) return; if (e.key === 'ArrowRight') goNext(); if (e.key === 'ArrowLeft') goPrev(); });
+const fromHash = () => { const h = location.hash.slice(1); const i = C.findIndex((c) => c.id === h); if (i >= 0) { if (C[i] === APXC) ax = -1; return i; } const j = APX.findIndex((c) => c.id === h); if (j >= 0) { ax = j; return C.indexOf(APXC); } return 0; };
+window.addEventListener('hashchange', () => { go(fromHash(), false); });
 go(fromHash(), false);
 let raf; new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => after && after()); }).observe(box);
 const mq = window.matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener && mq.addEventListener('change', () => after && after());
