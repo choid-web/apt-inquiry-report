@@ -1,7 +1,7 @@
 # 아파트 문의 성과 점검 및 공급 확보 방향 — 작업 인계 (2026-11-04)
 
 ## 산출물
-- 게시된 리포트(아티팩트): https://claude.ai/artifact/172WXuc455x31odxkETufo (Version 59)
+- 게시된 리포트(아티팩트): https://claude.ai/artifact/172WXuc455x31odxkETufo (Version 60)
   - 새 세션에서 같은 링크를 유지하려면 Artifact 도구로 이 URL을 먼저 read 한 뒤 url 지정해 publish.
 - 소스: rpt/template.html (`__DATA__`, `__FONT__` 자리표시자) + rpt/data.json → `python3 rpt/build.py` (pyftsubset 필요: `pip install fonttools brotli`)
 - 확인용 스크린샷: rpt/shot2.js (Playwright, preview.html#장id)
@@ -37,6 +37,7 @@
 - 영업 방식·지역별 영업 사정(대행사 등) 같은 내부 사항은 리포트에 쓰지 않음. 동탄 등 특정 지역 언급 안 함.
 - 부록 M 첫 문단: G/H 수치 비교 대신 "문의 건수만으로 고르면 … 그래서 사용자들의 조회·관심을 반영했습니다."
 - 11/3 회의(Sol): 문의 기준 목록은 인기 없는 단지·롱테일 사무소 → 사무소 1곳 영입당 문의 작음. 관심도 기준 방향 OK, "몇 개 안"으로 다시 준비 요청 → 현재안/2-b/안3 준비 완료.
+- N사 매핑 누락: 우선 단지 중 65곳은 사내 N사 매핑(zb_naver_mapped_items)에 매물 0건이나, 한강맨션은 N사 실제 매매 20건(사용자 11/4 확인) → 매핑 누락. 04장 표 행 'N사 매물 매핑 없음'으로 표기. 06-2(안3) 순위에도 영향 가능.
 - 사무소 명단(영업 대상)은 "나중에". (PRO 노출 여부 미검증 문구는 사용자 지시로 리포트에서 삭제)
 
 ## 11/3 검토 반영 (Version 40)
