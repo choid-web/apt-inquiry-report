@@ -54,6 +54,9 @@ th { text-align: right; font-weight: 500; color: var(--muted); padding: 7px 10px
 td { text-align: right; padding: 7px 10px; border-bottom: 1px solid var(--soft); white-space: nowrap; font-family: var(--f-num); font-variant-numeric: tabular-nums; }
 th:first-child, td:first-child { text-align: left; font-family: var(--f-body); }
 td.t { font-family: var(--f-body); text-align: left; white-space: normal; }
+.list th, .list td { padding: 6px 6px; font-size: 13px; }
+.list th { font-size: 12px; }
+.list td.t { min-width: 11em; }
 tr.sum td { font-weight: 600; border-top: 1px solid var(--line); }
 tr.hl td { background: var(--key); }
 tr.hol td { background: var(--holiday); }
@@ -120,11 +123,14 @@ const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n
 const period = (wk) => { const d = new Date(wk + 'T00:00:00'), e = new Date(d); e.setDate(d.getDate() + 6); const f = (x) => (x.getMonth() + 1) + '/' + x.getDate(); return f(d) + '~' + f(e); };
 
 function table(head, rows, opt = {}) {
-  const th = head.map((h) => `<th>${h}</th>`).join('');
+  const f0 = rows.length ? (rows[0].cells || rows[0]) : [];
+  const th = head.map((h, i) => `<th${f0[i] && typeof f0[i] === 'object' && f0[i].t ? ' style="text-align:left"' : ''}>${h}</th>`).join('');
   const tr = rows.map((r) => { const c = r.cls ? ` class="${r.cls}"` : ''; const cells = (r.cells || r); return `<tr${c}>${cells.map((x) => `<td${typeof x === 'object' && x && x.t ? ' class="t"' : ''}>${typeof x === 'object' && x ? x.v : x}</td>`).join('')}</tr>`; }).join('');
-  return `<div class="panel tw"${opt.max ? ` style="max-height:${opt.max};overflow:auto"` : ''}>${opt.title ? `<h3>${opt.title}</h3>` : ''}<table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table>${opt.note ? `<p class="note">${opt.note}</p>` : ''}</div>`;
+  return `<div class="panel tw${opt.max ? ' list' : ''}"${opt.max ? ` style="max-height:${opt.max};overflow:auto"` : ''}>${opt.title ? `<h3>${opt.title}</h3>` : ''}<table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table>${opt.note ? `<p class="note">${opt.note}</p>` : ''}</div>`;
 }
 const T = (v) => ({ t: 1, v });
+const SD = { '서울특별시': '서울', '경기도': '경기', '인천광역시': '인천', '부산광역시': '부산', '대구광역시': '대구', '대전광역시': '대전', '울산광역시': '울산', '광주광역시': '광주', '세종특별자치시': '세종', '전남광주통합특별시': '전남광주', '충청북도': '충북', '충청남도': '충남', '경상북도': '경북', '경상남도': '경남', '전라북도': '전북', '전북특별자치도': '전북', '전라남도': '전남', '강원도': '강원', '강원특별자치도': '강원', '제주특별자치도': '제주' };
+const sd = (s) => SD[s] || s;
 const legend = (items) => `<div class="leg">${items.map(([n, c, d]) => `<span><i class="sw${d ? ' dash' : ''}" style="${d ? 'border-color' : 'background'}:var(${c})"></i>${n}</span>`).join('')}</div>`;
 const chartBox = (id, title, items, note) => `<div class="panel"><h3>${title}</h3>${legend(items)}<div class="chart" id="${id}"></div>${note ? `<p class="note">${note}</p>` : ''}</div>`;
 
@@ -587,7 +593,7 @@ APPX.push({ id: 'opt2', no: 'N', name: '부록 선정 대안: 추정 기준', re
   + table(['지역', '단지'], [['서울', '60'], ['경기', '207'], ['인천', '56'], ['5대광역시+세종', '116'], ['기타', '61'], { cls: 'sum', cells: ['합계', '500'] }], { title: '② 지역별 단지 수', note: '직방 매물 0건 121곳 · 1~2건 116곳 · 3건 이상 263곳. 세대수 중앙값 1,224, 추정 기준 중앙값 38건(현재 3건). PRO 입점 112곳. 현재안(부록 H)과 겹치는 단지 73곳.' })
   + para('현재안보다 큰 단지와 지방·인천 비중이 커집니다. 지역 기준은 그 지역의 현재 직방 매물 수준에서 나오므로, 지금 직방 매물이 적은 지역(경기A 등)은 기준도 낮게 잡혀 대상에 잘 들어오지 않습니다. 직방 매물이 10건 이상인 단지도 101곳(30건 이상 8곳) 포함됩니다. 03장에서 매물이 10건 넘던 단지는 매물이 늘어도 문의가 줄었으므로(10~29건 −6.1%, 30건 이상 −2.3%), 이 단지들은 세대수 대비 부족이 커도 효과가 작을 수 있습니다.') + para('<b>보완 필요</b> · 이 방법으로 고른 500곳 중 360곳(72%)은 실제 조회 유저가 예상보다 적었고, 180곳(36%)은 예상의 절반에도 못 미쳤습니다. 단지 규모로 예상한 수요가 실제보다 크게 잡힌 단지가 매물 부족으로 뽑힐 수 있다는 뜻입니다. 예상 조회 대신 실제 조회를 쓰고 현재 매물에 상한을 두는 방안과, 기준을 네이버 매물 대비 직방 매물 비율로 바꾸는 방안을 검토하고 있습니다(재집계 필요).')
   + `<div class="panel"><input id="b2-q" type="search" placeholder="시도·시군구·단지명 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="b2-n" style="margin-top:8px"></p></div>`
-  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', '준공', 'PRO 입점', '직방 매물', '추정 기준', '부족', '조회 유저', '비고'], D.b2.map((r) => [String(r[0]), r[1], r[2] || '–', String(r[3]), T(r[4]), fI(r[5]), r[6], r[7], fI(r[8]), fI(r[9]), fI(r[10]), fI(r[11]), r[12]]), { title: '③ 대상 단지 500곳', max: '70vh', note: '직방 매물 = 11/1 노출 매물. 조회 유저 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). PRO 입점 = 조회 시점(11/3) 기준.' }),
+  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', '준공', 'PRO 입점', '직방 매물', '추정 기준', '부족', '조회 유저', '비고'], D.b2.map((r) => [String(r[0]), sd(r[1]), r[2] || '–', String(r[3]), T(r[4]), fI(r[5]), r[6], r[7], fI(r[8]), fI(r[9]), fI(r[10]), fI(r[11]), r[12]]), { title: '③ 대상 단지 500곳', max: '70vh', note: '직방 매물 = 11/1 노출 매물. 조회 유저 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). PRO 입점 = 조회 시점(11/3) 기준.' }),
   after: () => { const q = document.getElementById('b2-q'), n = document.getElementById('b2-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 13);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
@@ -597,7 +603,7 @@ APPX.push({ id: 'opt3', no: 'O', name: '부록 선정 대안: 사무소 보유 �
   + table(['지역', '단지'], [['서울', '137'], ['경기', '292'], ['인천', '12'], ['5대광역시+세종', '45'], ['기타', '14'], { cls: 'sum', cells: ['합계', '500'] }], { title: '② 지역별 단지 수', note: '상위 3곳 매물 합 중앙값 20건(1위 사무소 11건), 단지당 PRO 외 사무소 중앙값 11곳. 500곳의 상위 3곳 매물 합계 12,396건. 조회 유저 중앙값 2,056명. PRO 입점 39곳, 네이버에 매물을 올린 PRO 중개사가 있는 단지 116곳. 현재안(부록 H)과 겹치는 단지 263곳, 부록 N과 73곳.' })
   + para('현재안과 대상 범위가 비슷해 절반 가까이(263곳) 겹치고, 순서만 사무소 보유 매물 기준으로 바뀝니다. 사무소별 매물 수는 네이버 기준이라, 실제로 직방에 옮겨 올 수 있는 양과는 다를 수 있습니다.')
   + `<div class="panel"><input id="o3-q" type="search" placeholder="시도·시군구·단지명 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="o3-n" style="margin-top:8px"></p></div>`
-  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', 'PRO 입점', '직방 매물', '조회 유저', '상위 3곳 매물', '1위 사무소 매물', 'PRO 외 사무소', 'PRO 중개사'], D.o3.map((r) => [String(r[0]), r[1], r[2] || '–', String(r[3]), T(r[4]), fI(r[5]), r[6], fI(r[7]), fI(r[8]), fI(r[9]), fI(r[10]), fI(r[11]), fI(r[12])]), { title: '③ 대상 단지 500곳', max: '70vh', note: '상위 3곳·1위 사무소 매물 = 11/1 네이버 고유 매물 수, PRO를 쓰지 않는 사무소 기준. PRO 중개사 = 그 단지에 네이버 매물을 올린 중개사 중 어느 단지든 PRO를 쓰는 수. 조회 유저 = 10/12~11/1 직방+호갱노노 합계.' }),
+  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', 'PRO 입점', '직방 매물', '조회 유저', '상위 3곳 매물', '1위 사무소 매물', 'PRO 외 사무소', 'PRO 중개사'], D.o3.map((r) => [String(r[0]), sd(r[1]), r[2] || '–', String(r[3]), T(r[4]), fI(r[5]), r[6], fI(r[7]), fI(r[8]), fI(r[9]), fI(r[10]), fI(r[11]), fI(r[12])]), { title: '③ 대상 단지 500곳', max: '70vh', note: '상위 3곳·1위 사무소 매물 = 11/1 네이버 고유 매물 수, PRO를 쓰지 않는 사무소 기준. PRO 중개사 = 그 단지에 네이버 매물을 올린 중개사 중 어느 단지든 PRO를 쓰는 수. 조회 유저 = 10/12~11/1 직방+호갱노노 합계.' }),
   after: () => { const q = document.getElementById('o3-q'), n = document.getElementById('o3-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 13);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
@@ -618,14 +624,14 @@ C.push({ id: 'extra', no: 'F', name: '부록 추가 분석', render: () => { con
 C.push({ id: 'priority', no: 'G', name: '부록 문의 기준 후보', render: () => hdr('부록 G', '문의 기준 후보 목록 (이전 기준)', `${fI(D.pri.length)}곳`)
   + `<p class="lede">11/1 노출 매물 0~2건이면서 최근 3주(10/12~11/1) 직방+호갱노노 문의가 1건 이상 있던 단지입니다. 최근 3주 문의가 많은 순으로 정렬했습니다. 이 중 PRO 입점 단지는 ${fI(D.pri.filter((r) => r[4] === 'Y').length)}곳, 최근 3주 문의 합계는 ${fI(D.pri.reduce((s, r) => s + r[5], 0))}건입니다.</p>`
   + `<div class="panel"><input id="pri-q" type="search" placeholder="시도·시군구·단지명 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="pri-n" style="margin-top:8px"></p></div>`
-  + table(['시도', '시군구', '단지 ID', '단지명', 'PRO 입점', '최근 3주 문의'], D.pri.map((r) => [r[0], r[1], String(r[2]), T(r[3]), r[4], fI(r[5])]), { max: '70vh', note: 'PRO 입점 = 조회 시점(11/3) 아파트PRO 활성 구독 중개사가 1명 이상인 단지. 최근 3주 문의 = 10/12~11/1 직방+호갱노노 단지 문의 합계(클릭 로그).' }),
+  + table(['시도', '시군구', '단지 ID', '단지명', 'PRO 입점', '최근 3주 문의'], D.pri.map((r) => [sd(r[0]), r[1], String(r[2]), T(r[3]), r[4], fI(r[5])]), { max: '70vh', note: 'PRO 입점 = 조회 시점(11/3) 아파트PRO 활성 구독 중개사가 1명 이상인 단지. 최근 3주 문의 = 10/12~11/1 직방+호갱노노 단지 문의 합계(클릭 로그).' }),
   after: () => { const q = document.getElementById('pri-q'), n = document.getElementById('pri-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 6);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
 C.push({ id: 'top', no: 'H', name: '부록 우선 단지 목록', render: () => hdr('부록 H', '우선 단지 목록', `우선 단지 ${fI(D.top.length)}곳`)
   + `<p class="lede">11/1 직방 노출 매물 0~2건 단지를 최근 3주(10/12~11/1) 조회 유저·관심·문의로 점수화한 상위 500곳에, 입주 6개월 이내이면서 네이버 매물이 있는 입주예정 단지 18곳을 더했습니다. 임대, 100세대 미만, 입주 6개월 초과 분양·입주예정 단지는 뺐습니다. PRO 입점 ${fI(D.top.filter((r) => r[6] === 'Y').length)}곳.</p>`
   + `<div class="panel"><input id="top-q" type="search" placeholder="시도·시군구·단지명 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="top-n" style="margin-top:8px"></p></div>`
-  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', 'PRO 입점', '조회 유저', '관심', '문의', '직방 매물', '비고'], D.top.map((r) => [String(r[0]), r[1], r[2], String(r[3]), T(r[4]), fI(r[5]), r[6], fI(r[7]), fI(r[8]), fI(r[9]), fI(r[10]), r[11]]), { max: '70vh', note: '점수 = 조회 유저·관심·문의 각각의 백분위(매물 0~2건이면서 조회나 문의가 있는 전체 단지 대비) 평균. 조회 유저·관심·문의 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). 직방 매물 = 11/1 노출 매물. 입주예정(추가) 18곳은 점수 순으로 끼워 넣어 500위 밖 순위도 있음. PRO 입점 = 조회 시점(11/3) 기준.' }),
+  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', 'PRO 입점', '조회 유저', '관심', '문의', '직방 매물', '비고'], D.top.map((r) => [String(r[0]), sd(r[1]), r[2], String(r[3]), T(r[4]), fI(r[5]), r[6], fI(r[7]), fI(r[8]), fI(r[9]), fI(r[10]), r[11]]), { max: '70vh', note: '점수 = 조회 유저·관심·문의 각각의 백분위(매물 0~2건이면서 조회나 문의가 있는 전체 단지 대비) 평균. 조회 유저·관심·문의 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). 직방 매물 = 11/1 노출 매물. 입주예정(추가) 18곳은 점수 순으로 끼워 넣어 500위 밖 순위도 있음. PRO 입점 = 조회 시점(11/3) 기준.' }),
   after: () => { const q = document.getElementById('top-q'), n = document.getElementById('top-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 12);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
