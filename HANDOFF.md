@@ -1,7 +1,7 @@
 # 아파트 문의 성과 점검 및 공급 확보 방향 — 작업 인계 (2026-11-04)
 
 ## 산출물
-- 게시된 리포트(아티팩트): https://claude.ai/artifact/172WXuc455x31odxkETufo (Version 53)
+- 게시된 리포트(아티팩트): https://claude.ai/artifact/172WXuc455x31odxkETufo (Version 54)
   - 새 세션에서 같은 링크를 유지하려면 Artifact 도구로 이 URL을 먼저 read 한 뒤 url 지정해 publish.
 - 소스: rpt/template.html (`__DATA__`, `__FONT__` 자리표시자) + rpt/data.json → `python3 rpt/build.py` (pyftsubset 필요: `pip install fonttools brotli`)
 - 확인용 스크린샷: rpt/shot2.js (Playwright, preview.html#장id)
