@@ -1,4 +1,4 @@
-<title>아파트 문의 정체 분석</title>
+<title>아파트 문의 성과 점검</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>@font-face{font-family:"Pretendard";font-weight:45 920;font-style:normal;font-display:swap;src:local("Pretendard Variable"),url(data:font/woff2;base64,__FONT__) format("woff2-variations");}</style>
 <style>
@@ -37,6 +37,16 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .tabs button[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .tabs button[aria-current="true"] .n { color: inherit; opacity: .8; }
 .tabs button:focus-visible, .nav button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.subnav { display: flex; flex-wrap: wrap; gap: 6px; }
+.subnav button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 11px; cursor: pointer; white-space: nowrap; }
+.subnav button .n, .apx-item .n { font-family: var(--f-num); color: var(--muted); margin-right: 5px; font-size: 12px; }
+.subnav button[aria-current="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.subnav button[aria-current="true"] .n { color: inherit; opacity: .8; }
+.apx-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.apx-item { text-align: left; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; }
+.apx-item:hover { border-color: var(--accent); }
+.apx-item .d { color: var(--muted); font-size: 13px; }
+.subnav button:focus-visible, .apx-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 40px; }
 .ch { max-width: 980px; margin-inline: auto; display: flex; flex-direction: column; gap: 22px; }
 .eyebrow { font-family: var(--f-num); font-size: 12.5px; color: var(--accent); letter-spacing: .06em; }
@@ -54,8 +64,12 @@ th { text-align: right; font-weight: 500; color: var(--muted); padding: 7px 10px
 td { text-align: right; padding: 7px 10px; border-bottom: 1px solid var(--soft); white-space: nowrap; font-family: var(--f-num); font-variant-numeric: tabular-nums; }
 th:first-child, td:first-child { text-align: left; font-family: var(--f-body); }
 td.t { font-family: var(--f-body); text-align: left; white-space: normal; }
+.list th, .list td { padding: 6px 6px; font-size: 13px; }
+.list th { font-size: 12px; }
+.list td.t { min-width: 11em; }
 tr.sum td { font-weight: 600; border-top: 1px solid var(--line); }
 tr.hl td { background: var(--key); }
+td.c { background: var(--key); font-weight: 600; }
 tr.hol td { background: var(--holiday); }
 .up { color: var(--up); } .down { color: var(--down); }
 .tag { display: inline-block; font-size: 11.5px; padding: 0 6px; border-radius: 4px; background: var(--soft); color: var(--muted); margin-left: 6px; font-family: var(--f-body); }
@@ -90,7 +104,7 @@ a { color: var(--accent); }
 </style>
 
 <header class="bar"><div class="bar-in">
-  <div class="bar-top"><span class="brand">아파트 실거래 · 문의 · 매물 주간 분석</span><span class="meta">2026년 1월 1주차 ~ 10월 5주차 · 2026-11-03 조회</span></div>
+  <div class="bar-top"><span class="brand">아파트 문의 성과 점검 및 공급 확보 방향</span><span class="meta">2026년 1월 1주차 ~ 10월 5주차 · 2026-11-03 조회</span></div>
   <nav class="tabs" id="tabs" aria-label="장 선택"></nav>
 </div></header>
 <main><article class="ch" id="ch"></article>
@@ -120,11 +134,15 @@ const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n
 const period = (wk) => { const d = new Date(wk + 'T00:00:00'), e = new Date(d); e.setDate(d.getDate() + 6); const f = (x) => (x.getMonth() + 1) + '/' + x.getDate(); return f(d) + '~' + f(e); };
 
 function table(head, rows, opt = {}) {
-  const th = head.map((h) => `<th>${h}</th>`).join('');
-  const tr = rows.map((r) => { const c = r.cls ? ` class="${r.cls}"` : ''; const cells = (r.cells || r); return `<tr${c}>${cells.map((x) => `<td${typeof x === 'object' && x && x.t ? ' class="t"' : ''}>${typeof x === 'object' && x ? x.v : x}</td>`).join('')}</tr>`; }).join('');
-  return `<div class="panel tw"${opt.max ? ` style="max-height:${opt.max};overflow:auto"` : ''}>${opt.title ? `<h3>${opt.title}</h3>` : ''}<table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table>${opt.note ? `<p class="note">${opt.note}</p>` : ''}</div>`;
+  const f0 = rows.length ? (rows[0].cells || rows[0]) : [];
+  const th = head.map((h, i) => `<th${f0[i] && typeof f0[i] === 'object' && f0[i].t ? ' style="text-align:left"' : ''}>${h}</th>`).join('');
+  const tr = rows.map((r) => { const c = r.cls ? ` class="${r.cls}"` : ''; const cells = (r.cells || r); return `<tr${c}>${cells.map((x) => `<td${typeof x === 'object' && x && x.t ? ' class="t"' : typeof x === 'object' && x && x.h ? ' class="c"' : ''}>${typeof x === 'object' && x ? x.v : x}</td>`).join('')}</tr>`; }).join('');
+  return `<div class="panel tw${opt.max ? ' list' : ''}"${opt.max ? ` style="max-height:${opt.max};overflow:auto"` : ''}>${opt.title ? `<h3>${opt.title}</h3>` : ''}<table><thead><tr>${th}</tr></thead><tbody>${tr}</tbody></table>${opt.note ? `<p class="note">${opt.note}</p>` : ''}</div>`;
 }
 const T = (v) => ({ t: 1, v });
+const H = (v) => ({ h: 1, v });
+const SD = { '서울특별시': '서울', '경기도': '경기', '인천광역시': '인천', '부산광역시': '부산', '대구광역시': '대구', '대전광역시': '대전', '울산광역시': '울산', '광주광역시': '광주', '세종특별자치시': '세종', '전남광주통합특별시': '전남광주', '충청북도': '충북', '충청남도': '충남', '경상북도': '경북', '경상남도': '경남', '전라북도': '전북', '전북특별자치도': '전북', '전라남도': '전남', '강원도': '강원', '강원특별자치도': '강원', '제주특별자치도': '제주' };
+const sd = (s) => SD[s] || s;
 const legend = (items) => `<div class="leg">${items.map(([n, c, d]) => `<span><i class="sw${d ? ' dash' : ''}" style="${d ? 'border-color' : 'background'}:var(${c})"></i>${n}</span>`).join('')}</div>`;
 const chartBox = (id, title, items, note) => `<div class="panel"><h3>${title}</h3>${legend(items)}<div class="chart" id="${id}"></div>${note ? `<p class="note">${note}</p>` : ''}</div>`;
 
@@ -189,7 +207,7 @@ const mSum = (m, k) => sum(Y.filter((r) => r.month === m).map((r) => r[k]));
 const cum = (k) => sum(Y.map((r) => r[k]));
 const A9 = W.slice(35, 38), O10 = W.slice(41, 44);
 const coh = D.coh, cf = (a, b) => coh.find((c) => c.frm === a && c.to === b);
-const proStay = cf('PRO', 'PRO'), newLight = cf('미구독', 'LIGHT');
+const proStay = cf('PRO', 'PRO'), newLight = cf('미이용', 'LIGHT');
 const lightAll2 = sum(coh.filter((c) => c.to === 'LIGHT').map((c) => c.t2));
 const pro1 = sum(coh.filter((c) => c.frm === 'PRO').map((c) => c.t1)), pro2 = sum(coh.filter((c) => c.to === 'PRO').map((c) => c.t2));
 const proLeftT1 = sum(coh.filter((c) => c.frm === 'PRO' && c.to !== 'PRO').map((c) => c.t1));
@@ -201,17 +219,17 @@ const proNewN = sum(coh.filter((c) => c.to === 'PRO' && c.frm !== 'PRO').map((c)
 const C = [];
 C.push({ id: 'summary', name: '요약', render: () => `
 <div><div class="eyebrow">01 / 06 · 요약</div><h2>전체 문의는 그대로였고,<br>수도권에서는 LIGHT 비율이 높은 곳의 PRO 문의가 더 줄었다</h2></div>
-<p class="lede"><b>배경</b> · LIGHT 무료 운영 이후 사무소와 매물은 크게 늘었지만 전체 문의는 늘지 않았고, PRO가 받는 문의 비중은 79.4%(9월 초)에서 70.9%(10월 하순)로 떨어졌습니다. PRO 중개사 1명당 주간 문의는 1월 ${f2(D.mon[0].pa)}건에서 10월 ${f2(D.mon[9].pa)}건으로 낮아졌는데, 이는 LIGHT 확대 전부터 진행된 흐름입니다. 이 분석은 두 가지 질문을 확인했습니다.</p>
+<p class="lede"><b>배경</b> · LIGHT 무료 운영 이후 사무소와 매물은 크게 늘었지만 전체 문의는 늘지 않았고, PRO가 받는 문의 비중은 79.4%(9월 초)에서 70.9%(10월 하순)로 떨어졌다. PRO 중개사 1명당 주간 문의도 1월 ${f2(D.mon[0].pa)}건에서 10월 ${f2(D.mon[9].pa)}건으로 낮아졌다. 이 하락은 LIGHT 확대 전부터 이어졌다. 다음 두 질문을 분석했다.</p>
 <div class="key"><ul>
-<li><b>① 문의가 늘지 않는 것이 거래량·시장 상황과 연관이 있는가?</b> 거래량과의 연관은 약했습니다. 실거래(신고주 코호트)는 늘었지만(매매 +16.0%) 문의한 사람 수와 전체 문의는 그대로였고, 올해 주차별 연관도 약했습니다. 시장 상황은 조회 유저 감소(−5.3%)와 매수심리 약세가 있어 배경일 가능성은 있으나, 영향의 크기는 확인하지 못했습니다. 추석 전 거래가 추석 뒤 몰려 신고됐을 수 있어 주차별로 계속 추적합니다(03장).</li>
-<li><b>② PRO 문의 비중 하락이 단지 커버리지와 연관이 있는가?</b> 신규 LIGHT 매물은 비율로는 매물이 적던 단지에서 더 크게 늘어(1~2건 단지 +68.6%, 30건 이상 +21.8%) 쏠림은 완화됐지만, 건수로는 46%가 매물 30건 넘던 단지에 겹쳤습니다. 이 단지들은 매물이 22% 늘어도 문의가 −2.3%였고, 같은 집에 사무소가 겹치면 집당 문의는 그대로인 채 매물 1건 몫만 줄었습니다(부록 F-5). 이런 겹침이 많은 수도권에서는 LIGHT 비율이 높은 시군구의 PRO 문의 감소폭이 컸고(10% 미만 −0.4%, 그 이상 −12~−23%), 지방은 PRO 문의가 대체로 유지됐습니다. PRO 감소는 등급 이동보다 계속 PRO인 중개사의 문의 감소가 컸습니다. 인과관계는 확정하지 못했습니다(04·05장).</li>
-<li><b>제안</b> · 매물이 0~2건이면서 유저 관심(조회·관심·문의)이 높은 518곳(부록 H)에서, 해당 단지를 주로 다루는 사무소에 그 단지 PRO를 먼저 제안하고, 어려우면 LIGHT로라도 매물 등록을 확보합니다. PRO로 확보하면 새 문의가 PRO로 가고, LIGHT로 확보해도 전체 문의는 늘어납니다. 이미 매물이 많은 단지에서 나뉜 PRO 문의를 되돌리는 방안은 아닙니다(06장).</li>
+<li><b>① 문의가 늘지 않는 것이 거래량·시장 상황과 연관이 있는가?</b> 거래량만으로는 설명되지 않았다. 매매 실거래(신고 주 기준)는 16.0% 늘었지만, 문의한 사람 수와 전체 문의는 그대로였다. 올해 주차별로 봐도 거래량과 문의는 약하거나 중간 정도로만 함께 움직였다. 단지 조회 유저 감소(−5.3%)와 매수심리 약세로 보아 시장 냉각이 배경일 가능성은 있지만, 그 영향의 크기는 확인하지 못했다. 추석 전 거래가 추석 뒤에 몰려 신고됐을 수 있어 주차별로 계속 추적한다(03장).</li>
+<li><b>② PRO 문의 비중 하락이 단지 커버리지와 연관이 있는가?</b> 매물이 적던 단지일수록 전체 매물 증가율이 높아(1~2건 단지 +105%, 30건 이상 +23%) 매물 쏠림은 다소 완화됐다. 그러나 신규 LIGHT 매물의 45%는 매물이 30건 넘던 단지에 들어갔고, 이 단지들은 매물이 23% 늘었는데도 문의가 2.3% 줄었다. 같은 집에 여러 사무소가 매물을 올리면 그 집이 받는 문의는 그대로이고, 매물 1건이 받는 문의만 줄었다(부록 F-5). 수도권 시군구를 같은 단지 안 LIGHT 매물 ÷ PRO 매물 비율로 나눠 보면, 10% 미만 집단은 PRO 문의가 거의 유지됐고(−0.4%) 10% 이상 집단은 12~23% 줄었다. 지방은 PRO 문의가 대체로 유지됐다. PRO 문의가 줄어든 데에는 중개사의 등급 이탈보다 PRO를 유지한 중개사가 문의를 덜 받은 영향이 더 컸다. 인과관계는 확정하지 못했다(04·05장).</li>
+<li><b>제안</b> · 매물은 0~2건이지만 유저 관심(조회·관심·문의)이 높은 518곳(부록 H)을 우선 단지로 본다. 해당 단지를 주로 다루는 사무소에 그 단지의 PRO 상품 판매를 우선 시도하고, 어려우면 LIGHT로라도 매물 등록을 확보한다. PRO로 확보하면 새 문의를 PRO가 받는다. LIGHT로 확보해도 전체 문의는 늘 것으로 보지만, 매물 1~2건 단지에서는 효과를 더 확인해야 한다. 이미 매물이 많은 단지에서 LIGHT와 나뉜 PRO 문의를 되돌리는 방안은 아니다(06장).</li>
 </ul></div>
 ${table(['구분 (주 평균)', '9월 1~3주', '10월 3~5주', '변화'], [
   [T('전체 문의'), '8,662건', '8,644건', P(-0.002)],
   [T('PRO 문의 (비중)'), '6,876건 (79.4%)', '6,132건 (70.9%)', P(-0.108)],
   [T('LIGHT 문의 (비중)'), '164건 (1.9%)', '1,269건 (14.7%)', '+1,105건'],
-  [T('문의한 유저 / 조회 유저'), '5,052 / 149.9만명', '5,052 / 142.0만명', '0.0% / ' + P(-0.053)],
+  [T('문의한 유저 / 단지 조회 유저'), '5,052 / 149.9만명', '5,052 / 142.0만명', '0.0% / ' + P(-0.053)],
   [T('매매 실거래 (신고주 코호트)'), '5,747건', '6,663건', P(0.1595)]], { title: '핵심 수치', note: '클릭 로그(직방+호갱노노) 기준. 기준 상세는 부록 E.' })}
 ` });
 
@@ -249,7 +267,7 @@ function regionWire(id, fields) {
 C.push({ id: 'deals', name: '실거래', render: () => `
 <div><div class="eyebrow">02 / 12 · 실거래</div><h2>주차별 실거래: 매매·전세·월세</h2></div>
 <p class="note">집계: 신고주 코호트(각 신고주차에 계약일이 직전주 월요일 이후인 건), 임대차 갱신 제외.</p>
-<p class="lede">매매·전세·월세 합계 주 평균은 1월 13,706건에서 3월 14,938건으로 늘었다가 9월 초(1~3주) 11,941건까지 줄었고, 10월 하순(3~5주) 13,742건으로 회복했습니다(9월 초 대비 +15.1%, 매매 +16.0%·전세 +16.9%·월세 +11.5%). 1~10월 누적은 전년 대비 +6.7%(매매 +17.0%, 전세 −12.4%, 월세 +15.1%)이지만, 10월 하순은 −6.4%(매매 −10.9%)로 전년보다 낮습니다. 작년 10월은 연휴와 10·15 대책 전후가 겹쳐 비교 기준으로 쓰기 어렵습니다(부록 D).</p>
+<p class="lede">매매·전세·월세 합계 주 평균은 1월 13,706건에서 3월 14,938건으로 늘었다가 9월 초(1~3주) 11,941건까지 줄었고, 10월 하순(3~5주) 13,742건으로 회복했다(9월 초 대비 +15.1%, 매매 +16.0%·전세 +16.9%·월세 +11.5%). 1~10월 누적은 전년 대비 +6.7%(매매 +17.0%, 전세 −12.4%, 월세 +15.1%)이지만, 10월 하순은 −6.4%(매매 −10.9%)로 전년보다 낮다. 작년 10월은 연휴와 10·15 대책 전후가 겹쳐 비교 기준으로 쓰기 어렵다(부록 D).</p>
 ${chartBox('c-deals', '주차별 실거래', [['합계', '--ink'], ['매매', '--s1'], ['전세', '--s3'], ['월세', '--s2']], '주황 배경 = 명절·연휴 주차 (신정, 설, 추석).')}
 ${wtable('주차별 실거래 (건)', [grp('합계', 'deals_all', 'a'), grp('매매', 'deals', 's'), grp('전세', 'deals_jeonse', 'j'), grp('월세', 'deals_wolse', 'm'),
   { g: '매매 코호트', cols: [{ h: '당주 계약', v: (i) => fI(W[i].deals_same) }, { h: '직전주 계약', v: (i) => fI(W[i].deals_prev) }] }])}
@@ -259,54 +277,54 @@ ${regionBlock('rg-deals', '시장지역별 주차 실거래 (지역 선택)', nu
 
 C.push({ id: 'inquiry', name: '문의', render: () => `
 <div><div class="eyebrow">03 / 12 · 문의</div><h2>주차별 문의: 플랫폼, 유형, 거래유형</h2></div>
-<p class="lede">PRO·LIGHT·BASIC 구독 중개사가 받은 문의(직방+호갱노노, 로그인 사용자 문의 클릭)입니다. 기타(제휴·로컬·분양·미구독)는 뺐습니다. YoY는 받는 중개사 유형이 달라진 2025년과 맞추기 위해 기타를 포함한 문의 전체로 계산했습니다.</p>
+<p class="lede">PRO·LIGHT·BASIC 이용 중개사가 받은 문의(직방+호갱노노, 로그인 사용자 문의 클릭)이다. 기타(제휴·로컬·분양·미이용)는 뺐다. YoY는 받는 중개사 유형이 달라진 2025년과 맞추기 위해 기타를 포함한 문의 전체로 계산했다.</p>
 ${chartBox('c-inq', '주차별 문의 · 플랫폼', [['합계', '--ink'], ['직방', '--s1'], ['호갱노노', '--s2']])}
 ${wtable('주차별 문의 (건)', [
   { g: '문의 전체 (3등급)', cols: [{ h: '2026', v: (i) => fI(W[i].inq_total) }, cW('inq_total')] },
   { g: '기타 포함 전체', cols: [{ h: '2025', v: (i) => fI(Y[i].q25) }, { h: '2026', v: (i) => fI(Y[i].q26) }, cY('q25', 'q26')] },
   grp('직방', 'inq_zb'), grp('호갱노노', 'inq_hg')])}
 ${wtable('주차별 문의 유형 · 매물 문의 거래유형 (건)', [grp('매물 문의', 'inq_item'), grp('단지 문의', 'inq_danji'), grp('중개사(프로필)', 'inq_agent'),
-  grp('매물 · 매매', 'item_sale'), grp('매물 · 전세', 'item_jeonse'), grp('매물 · 월세', 'item_wolse')], { note: '거래유형 미상(매물 정보에 거래유형이 아직 없는 건)은 주 100건 내외로 표에서 뺐습니다.' })}
+  grp('매물 · 매매', 'item_sale'), grp('매물 · 전세', 'item_jeonse'), grp('매물 · 월세', 'item_wolse')], { note: '거래유형 미상(매물 정보에 거래유형이 아직 없는 건)은 주 100건 내외로 표에서 뺐다.' })}
 ${regionBlock('rg-inq', '시장지역별 주차 문의 (지역 선택)', null, '매물·단지 문의 = 단지 소재지, 중개사 문의 = 문의받은 사무소 소재지. 노출 매물 = 일요일 기준 해당 지역 매물.')}
 `, after: () => { draw(document.getElementById('c-inq'), { rows: wrows, label: '문의', series: [{ k: 'inq_total', n: '합계', c: '--ink' }, { k: 'inq_zb', n: '직방', c: '--s1' }, { k: 'inq_hg', n: '호갱노노', c: '--s2' }] });
   if (!document.getElementById('rg-inq').firstChild) regionWire('rg-inq', [{ n: '문의', v: (x) => x.q }, { n: '노출 매물', v: (x) => x.l }, { n: '매매 실거래', v: (x) => x.s }]); } });
 
 C.push({ id: 'supply', name: '공급', render: () => `
-<div><div class="eyebrow">04 / 12 · 공급</div><h2>주차별 노출 매물·구독 중개사와 단위당 문의</h2></div>
-<p class="lede">문의는 1월 1~4주 평균보다 10월 5주차가 ${fP(ch(W.slice(0, 4).reduce((s, r) => s + r.inq_total, 0) / 4, W[W.length - 1].inq_total))}로 조금 늘었지만 노출 매물(${fP(ch(W.slice(0, 4).reduce((s, r) => s + r.lst_total, 0) / 4, W[W.length - 1].lst_total))})과 구독 중개사(${(W[W.length - 1].agents_total / (W.slice(0, 4).reduce((s, r) => s + r.agents_total, 0) / 4)).toFixed(1)}배)가 훨씬 더 늘어, 중개사 1명당 주간 문의가 1월 1~4주 평균 ${f2(W.slice(0, 4).reduce((s, r) => s + r.inq_per_agent, 0) / 4)}건에서 10월 5주차 ${f2(W[W.length - 1].inq_per_agent)}건으로 줄었습니다. 구독 중개사 증가는 대부분 10월 LIGHT입니다.</p>
-${chartBox('c-sup', '구독 중개사 수 (일요일 기준, 명)', [['합계', '--ink'], ['PRO', '--s1'], ['LIGHT', '--s4'], ['BASIC', '--s3']])}
-${wtable('주차별 구독 중개사와 상품별 문의', [
-  { g: '구독 중개사 (명)', cols: [{ h: 'PRO', v: (i) => fI(W[i].agents_pro) }, { h: 'LIGHT', v: (i) => fI(W[i].agents_light) }, { h: 'BASIC', v: (i) => fI(W[i].agents_basic) }, { h: '합계', v: (i) => fI(W[i].agents_total) }, cW('agents_total')] },
+<div><div class="eyebrow">04 / 12 · 공급</div><h2>주차별 노출 매물·상품 이용 중개사와 단위당 문의</h2></div>
+<p class="lede">문의는 1월 1~4주 평균보다 10월 5주차가 ${fP(ch(W.slice(0, 4).reduce((s, r) => s + r.inq_total, 0) / 4, W[W.length - 1].inq_total))}로 조금 늘었지만 노출 매물(${fP(ch(W.slice(0, 4).reduce((s, r) => s + r.lst_total, 0) / 4, W[W.length - 1].lst_total))})과 상품 이용 중개사(${(W[W.length - 1].agents_total / (W.slice(0, 4).reduce((s, r) => s + r.agents_total, 0) / 4)).toFixed(1)}배)가 훨씬 더 늘어, 중개사 1명당 주간 문의가 1월 1~4주 평균 ${f2(W.slice(0, 4).reduce((s, r) => s + r.inq_per_agent, 0) / 4)}건에서 10월 5주차 ${f2(W[W.length - 1].inq_per_agent)}건으로 줄었다. 상품 이용 중개사 증가는 대부분 10월 LIGHT다.</p>
+${chartBox('c-sup', '상품 이용 중개사 수 (일요일 기준, 명)', [['합계', '--ink'], ['PRO', '--s1'], ['LIGHT', '--s4'], ['BASIC', '--s3']])}
+${wtable('주차별 상품 이용 중개사와 상품별 문의', [
+  { g: '상품 이용 중개사 (명)', cols: [{ h: 'PRO', v: (i) => fI(W[i].agents_pro) }, { h: 'LIGHT', v: (i) => fI(W[i].agents_light) }, { h: 'BASIC', v: (i) => fI(W[i].agents_basic) }, { h: '합계', v: (i) => fI(W[i].agents_total) }, cW('agents_total')] },
   { g: '상품별 문의 (건)', cols: [{ h: 'PRO', v: (i) => fI(W[i].inq_pro) }, { h: 'LIGHT', v: (i) => fI(W[i].inq_light) }, { h: 'BASIC', v: (i) => fI(W[i].inq_basic) }, { h: '합계', v: (i) => fI(W[i].inq_pro + W[i].inq_light + W[i].inq_basic) }, { h: 'WoW', v: (i) => P(i > 0 ? ch(W[i - 1].inq_pro + W[i - 1].inq_light + W[i - 1].inq_basic, W[i].inq_pro + W[i].inq_light + W[i].inq_basic) : null) }, { h: '기타(제외)', v: (i) => fI(W[i].inq_other) }] },
   { g: '1명당 주간 문의', cols: [{ h: 'PRO', v: (i) => f2(W[i].inq_pro / W[i].agents_pro) }, { h: 'LIGHT', v: (i) => W[i].agents_light ? f2(W[i].inq_light / W[i].agents_light) : '—' }, { h: 'BASIC', v: (i) => f2(W[i].inq_basic / W[i].agents_basic) }, { h: '전체', v: (i) => f2(W[i].inq_per_agent) }] }])}
 ${wtable('주차별 노출 매물 (일요일 기준, 개)', [grp('전체', 'lst_total'), grp('매매', 'lst_sale'), grp('전세', 'lst_jeonse'), grp('월세', 'lst_wolse'),
   { g: '매물 1천 개당 주간', cols: [{ h: '문의', v: (i) => f1(W[i].inq_per_1k) }, { h: '매매 실거래', v: (i) => f1(W[i].deals / W[i].lst_sale * 1000) }] }])}
-`, after: () => draw(document.getElementById('c-sup'), { rows: wrows, label: '구독 중개사', series: [{ k: 'agents_total', n: '합계', c: '--ink' }, { k: 'agents_pro', n: 'PRO', c: '--s1' }, { k: 'agents_light', n: 'LIGHT', c: '--s4' }, { k: 'agents_basic', n: 'BASIC', c: '--s3' }] }) });
+`, after: () => draw(document.getElementById('c-sup'), { rows: wrows, label: '상품 이용 중개사', series: [{ k: 'agents_total', n: '합계', c: '--ink' }, { k: 'agents_pro', n: 'PRO', c: '--s1' }, { k: 'agents_light', n: 'LIGHT', c: '--s4' }, { k: 'agents_basic', n: 'BASIC', c: '--s3' }] }) });
 
 C.push({ id: 'corr', name: '연관성', render: () => `
 <div><div class="eyebrow">05 / 12 · 연관성 (2026년 안)</div><h2>올해 안에서 거래량과 문의는 약하게만 같이 움직였다</h2></div>
-<p class="lede">명절 주차와 그다음 주를 뺀 약 35주의 상관계수입니다. 1에 가까울수록 같이 움직입니다.</p>
+<p class="lede">명절 주차와 그다음 주를 뺀 약 35주의 상관계수다. 1에 가까울수록 같이 움직인다.</p>
 ${table(['비교', '같은 주', '문의 1주 먼저', '주간 증감률끼리'], [['매매 실거래 ↔ 문의 전체', '0.37', '0.52', '0.29'], ['매매 실거래 ↔ 매매 매물 문의', '0.18', '0.30', '0.15'], ['전세 실거래 ↔ 전세 매물 문의', '0.30', '0.53', '0.18'], ['월세 실거래 ↔ 월세 매물 문의', '0.31', '0.22', '0.36']], { title: '주차별 상관계수' })}
-<!--K-->${table(['문의 증감과의 상관 (9개 지역)', '1월 대비', '5월 대비'], [['매매 실거래 증감', '0.41', '−0.11'], ['임대차 실거래 증감', '−0.09', '0.44'], ['노출 매물 증감', '0.87', '0.79']], { title: '지역별 상관계수', note: '지역이 9개뿐이라 경기A처럼 증감폭이 큰 지역 하나에 크게 좌우될 수 있습니다.' })}
-<div class="key"><ul><li>매매가 5월 대비 −11.8%인 동안 매매 매물 문의는 +14.1%, 전체 문의는 +7.1%로 크기가 따로 갔습니다. 서울 매매 실거래는 약 −50%였지만 서울 매물·단지 문의는 −3%였습니다.</li>
-<li><span class="inf">[추론]</span> 지역별로 문의는 거래량보다 노출 매물과 함께 움직였습니다. 매물이 많아서 문의가 생긴 것인지, 수요 있는 곳에 매물이 몰린 것인지는 이 자료로 구분되지 않습니다.</li>
-<li>단지 단위로 보면 이미 매물이 많은 단지에 매물을 더해도 문의가 거의 늘지 않았습니다(05장). 지역 상관은 빈 곳이 채워진 효과와 수요가 있는 곳에 매물이 몰린 효과가 섞인 값으로 봅니다 <span class="inf">[추론]</span>.</li></ul></div>
+<!--K-->${table(['문의 증감과의 상관 (9개 지역)', '1월 대비', '5월 대비'], [['매매 실거래 증감', '0.41', '−0.11'], ['임대차 실거래 증감', '−0.09', '0.44'], ['노출 매물 증감', '0.87', '0.79']], { title: '지역별 상관계수', note: '지역이 9개뿐이라 경기A처럼 증감폭이 큰 지역 하나에 크게 좌우될 수 있다.' })}
+<div class="key"><ul><li>매매가 5월 대비 −11.8%인 동안 매매 매물 문의는 +14.1%, 전체 문의는 +7.1%로 서로 다르게 움직였다. 서울 매매 실거래는 약 −50%였지만 서울 매물·단지 문의는 −3%였다.</li>
+<li><span class="inf">[추론]</span> 지역별로 문의는 거래량보다 노출 매물과 함께 움직였다. 매물이 많아서 문의가 생긴 것인지, 수요 있는 곳에 매물이 몰린 것인지는 이 자료로 구분되지 않는다.</li>
+<li>단지 단위로 보면 매물이 30건 넘던 단지는 신규 LIGHT 매물이 들어간 뒤에도 문의 변화가 작았다(+1.2%, 03장). 지역 상관은 빈 곳이 채워진 효과와 수요가 있는 곳에 매물이 몰린 효과가 섞인 값으로 본다 <span class="inf">[추론]</span>.</li></ul></div>
 ` });
 
 C.push({ id: 'yoy', name: '전년 비교', render: () => {
-  const cumRows = [['실거래 매매', 's'], ['실거래 전세 (갱신 제외)', 'j'], ['실거래 월세 (갱신 제외)', 'm'], ['문의 전체 (기타 포함)', 'q'], ['문의 PRO', 'p'], ['문의 구독 3등급', 'sub'], ['매물 문의 · 매매', 'is'], ['매물 문의 · 전세', 'ij'], ['매물 문의 · 월세', 'iw'], ['단지 문의', 'dj'], ['중개사(프로필) 문의', 'ag']]
+  const cumRows = [['실거래 매매', 's'], ['실거래 전세 (갱신 제외)', 'j'], ['실거래 월세 (갱신 제외)', 'm'], ['문의 전체 (기타 포함)', 'q'], ['문의 PRO', 'p'], ['문의 상품 3등급', 'sub'], ['매물 문의 · 매매', 'is'], ['매물 문의 · 전세', 'ij'], ['매물 문의 · 월세', 'iw'], ['단지 문의', 'dj'], ['중개사(프로필) 문의', 'ag']]
     .map(([n, k]) => [n, fI(cum(k + '25')), fI(cum(k + '26')), P(ch(cum(k + '25'), cum(k + '26')))]);
   const mRows = months.map((m) => [m + '월', P(ch(mSum(m, 's25'), mSum(m, 's26'))), P(ch(mSum(m, 'j25'), mSum(m, 'j26'))), P(ch(mSum(m, 'm25'), mSum(m, 'm26'))), P(ch(mSum(m, 'q25'), mSum(m, 'q26'))), P(ch(mSum(m, 'p25'), mSum(m, 'p26'))), fS(mSum(m, 'p25') / mSum(m, 'q25')), fS(mSum(m, 'p26') / mSum(m, 'q26'))]);
   return `
 <div><div class="eyebrow">06 / 12 · 전년 비교</div><h2>전년 대비로 보면 거래량과 문의는 같은 방향으로 내려왔다</h2></div>
-<p class="lede">2025년과 2026년의 같은 순번 주차를 비교했습니다. 문의는 받는 중개사 유형을 모두 포함한 전체를 기준으로 봅니다. 2025년에는 제휴중개사·로컬부동산 비중이 커서, 구독 등급만 보면 상품 구조 변화가 섞입니다.</p>
+<p class="lede">2025년과 2026년의 같은 순번 주차를 비교했다. 문의는 받는 중개사 유형을 모두 포함한 전체를 기준으로 본다. 2025년에는 제휴중개사·로컬부동산 비중이 커서, 상품 등급만 보면 상품 구조 변화가 섞여 있다.</p>
 ${table(['지표', '2025', '2026', 'YoY'], cumRows, { title: '1~10월 누적' })}
-${chartBox('c-yoy', '주차별 YoY', [['매매 실거래', '--s1'], ['문의 전체', '--s2'], ['PRO 문의', '--s4', 1]], '+150%를 넘는 값은 그리지 않았습니다(2025년 설 주차와 맞물린 1월 4주 매매 +626%, 연초 PRO 문의 수백 %). 정확한 값은 아래 월별 표와 02장 표에서 확인하세요. 주황 = 어느 한 해라도 명절이 낀 주차.')}
-${table(['월', '매매', '전세', '월세', '문의 전체', 'PRO 문의', 'PRO 비중 25', 'PRO 비중 26'], mRows, { title: '월별 YoY', note: '월 = 2026년 기준 목요일이 속한 달. 1월은 2025년 설이 1월에 있어 YoY가 크게, 2월은 작게 나옵니다. 추석도 2025년 10월, 2026년 9월이라 9~10월이 섞입니다.' })}
+${chartBox('c-yoy', '주차별 YoY', [['매매 실거래', '--s1'], ['문의 전체', '--s2'], ['PRO 문의', '--s4', 1]], '+150%를 넘는 값은 그리지 않았다(2025년 설 주차와 맞물린 1월 4주 매매 +626%, 연초 PRO 문의 수백 %). 정확한 값은 아래 월별 표와 부록 A 표에서 확인할 수 있다. 주황 = 어느 한 해라도 명절이 낀 주차.')}
+${table(['월', '매매', '전세', '월세', '문의 전체', 'PRO 문의', 'PRO 비중 25', 'PRO 비중 26'], mRows, { title: '월별 YoY', note: '월 = 2026년 기준 목요일이 속한 달. 1월은 2025년 설이 1월에 있어 YoY가 크게, 2월은 작게 나온다. 추석도 2025년 10월, 2026년 9월이라 9~10월이 섞여 있다.' })}
 ${(() => { const rows = IDX.map((i) => { const r = Y[i]; return { cls: (r.h25 || r.h26) ? 'hol' : '', cells: [r.label + (r.h25 ? ` <span class="tag">25 ${r.h25}</span>` : '') + (r.h26 ? ` <span class="tag">26 ${r.h26}</span>` : ''),
   fI(r.s25), fI(r.s26), P(ch(r.s25, r.s26)), fI(r.j25), fI(r.j26), P(ch(r.j25, r.j26)), fI(r.m25), fI(r.m26), P(ch(r.m25, r.m26)), fI(r.q25), fI(r.q26), P(ch(r.q25, r.q26)), fI(r.p25), fI(r.p26), P(ch(r.p25, r.p26))] }; });
   return `<div class="panel"><h3>주차별 YoY</h3><div class="tw wk"><table><thead><tr><th></th><th colspan="3" style="text-align:center;color:var(--ink)">매매 실거래</th><th colspan="3" style="text-align:center;color:var(--ink)">전세</th><th colspan="3" style="text-align:center;color:var(--ink)">월세</th><th colspan="3" style="text-align:center;color:var(--ink)">문의 전체 (기타 포함)</th><th colspan="3" style="text-align:center;color:var(--ink)">PRO 문의</th></tr><tr><th>주차</th>${'<th>2025</th><th>2026</th><th>YoY</th>'.repeat(5)}</tr></thead><tbody>${rows.map((r) => `<tr class="${r.cls}">${r.cells.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div><p class="note">2025년 1주차 = 24.12.30~25.01.05. 주황 = 어느 한 해라도 명절이 낀 주차.</p></div>`; })()}
-${table(['실거래 YoY', '문의 YoY', '상관계수'], [['매매', T('PRO 문의'), '0.79'], ['매매', T('문의 전체'), '0.67'], ['매매', T('단지 문의'), '0.77'], ['매매', T('매물 문의 · 매매'), '0.10'], ['전세', T('매물 문의 · 전세'), '0.40'], ['월세', T('매물 문의 · 월세'), '0.71']], { title: '주차별 YoY 상관 (명절 주차와 그다음 주를 뺀 30주)', note: '두 YoY 모두 연초에 높고 연말에 낮은 추세가 있어 상관이 높게 나온 부분이 있습니다. 7월 이후 14주만 보면 매매↔PRO는 0.56입니다.' })}
+${table(['실거래 YoY', '문의 YoY', '상관계수'], [['매매', T('PRO 문의'), '0.79'], ['매매', T('문의 전체'), '0.67'], ['매매', T('단지 문의'), '0.77'], ['매매', T('매물 문의 · 매매'), '0.10'], ['전세', T('매물 문의 · 전세'), '0.40'], ['월세', T('매물 문의 · 월세'), '0.71']], { title: '주차별 YoY 상관 (명절 주차와 그다음 주를 뺀 30주)', note: '두 YoY 모두 연초에 높고 연말에 낮은 추세가 있어 상관이 높게 나온 부분이 있다. 7월 이후 14주만 보면 매매↔PRO는 0.56이다.' })}
 `; }, after: () => draw(document.getElementById('c-yoy'), { rows: yrows.map((r) => { const c = (v) => (v != null && v > 1.5 ? null : v); return { ...r, ys: c(r.ys), yq: c(r.yq), yp: c(r.yp) }; }), label: 'YoY', fmt: (v) => Math.round(v * 100) + '%', ref: 0, series: [{ k: 'ys', n: '매매 실거래', c: '--s1', f: fP }, { k: 'yq', n: '문의 전체', c: '--s2', f: fP }, { k: 'yp', n: 'PRO 문의', c: '--s4', dash: 1, thin: 1, f: fP }] }) });
 
 C.push({ id: 'pro', name: 'PRO', render: () => {
@@ -315,55 +333,55 @@ C.push({ id: 'pro', name: 'PRO', render: () => {
   return `
 <div><div class="eyebrow">07 / 12 · PRO</div><h2>계속 PRO인 중개사의 1명당 문의는 봄과 10월 하순, 두 번 줄었다</h2></div>
 <h3>3월부터 계속 PRO인 중개사 (${fI(D.trackL[0].n)}명)</h3>
-${chartBox('c-trackL', '1명당 주간 문의 (3월 1주차~10월 5주차, 주차별)', [['1명당 주간 문의', '--s1'], ['전체 문의 중 이 집단 몫 (÷10, 6.0 = 60%)', '--s2', 1]], '3/1, 8/2, 9/20, 11/1 네 시점 모두 PRO인 중개사. 몫 선은 % 값을 10으로 나눠 같은 축에 그렸습니다(예: 6.0 = 60%). 주황 = 추석 연휴 주차(9/21~27).')}
-${table(['주차', '1명당 문의', 'WoW', '문의 0건 비율', '집단 문의', '전체 문의', '전체 WoW', '집단 몫'], D.trackL.map((r, i) => { const p = D.trackL[i - 1]; const w = W.find((x) => x.wk === r.k); return { cls: w && w.holiday ? 'hol' : (r.k === '2026-03-30' || r.k === '2026-10-19' ? 'hl' : ''), cells: [w ? wlab(w) : r.label, f2(r.avg), P(p ? ch(p.avg, r.avg) : null), fS(r.z), fI(r.t), fI(r.all), P(p ? ch(p.all, r.all) : null), fS(r.share)] }; }).reverse(), { title: '3월부터 계속 PRO 중개사 주차별 추적 (1,943명 고정)', note: '응답원장(채팅·콜백·전화) 아파트 문의. 전화 원장은 2026년 2월부터 적재되어 3월 1주차부터 비교했습니다. 노란 행 = 두 번의 하락이 시작된 주.' })}
-<p class="note" style="font-size:14px;color:var(--ink)">흐름은 계단식 하락에 가깝습니다. 3월 말~4월 초와 10월 4주차(10/19~25, 전주 대비 −12.7%)에 크게 떨어졌고, 그 사이에도 회복하지 못한 채 몫이 전반적으로 줄었습니다. 봄 하락은 전체 문의와 함께 줄어 원인을 특정하지 못했고, 10월 4주차 하락은 전체 문의가 그대로인데 몫이 줄며 나타났습니다(LIGHT 구독 중개사 4천 명을 넘은 주).</p>
+${chartBox('c-trackL', '1명당 주간 문의 (3월 1주차~10월 5주차, 주차별)', [['1명당 주간 문의', '--s1'], ['전체 문의 중 이 집단 비중 (÷10, 6.0 = 60%)', '--s2', 1]], '3/1, 8/2, 9/20, 11/1 네 시점 모두 PRO인 중개사. 비중 선은 % 값을 10으로 나눠 같은 축에 그렸다(예: 6.0 = 60%). 주황 = 추석 연휴 주차(9/21~27).')}
+${table(['주차', '1명당 문의', 'WoW', '문의 0건 비율', '집단 문의', '전체 문의', '전체 WoW', '집단 비중'], D.trackL.map((r, i) => { const p = D.trackL[i - 1]; const w = W.find((x) => x.wk === r.k); return { cls: w && w.holiday ? 'hol' : (r.k === '2026-03-30' || r.k === '2026-10-19' ? 'hl' : ''), cells: [w ? wlab(w) : r.label, f2(r.avg), P(p ? ch(p.avg, r.avg) : null), fS(r.z), fI(r.t), fI(r.all), P(p ? ch(p.all, r.all) : null), fS(r.share)] }; }).reverse(), { title: '3월부터 계속 PRO 중개사 주차별 추적 (1,943명 고정)', note: '응답원장(채팅·콜백·전화) 아파트 문의. 전화 원장은 2026년 2월부터 적재되어 3월 1주차부터 비교했다. 노란 행 = 두 번의 하락이 시작된 주.' })}
+<p class="note" style="font-size:14px;color:var(--ink)">흐름은 계단식 하락에 가깝다. 3월 말~4월 초와 10월 4주차(10/19~25)에 크게 떨어졌고, 그 사이에도 회복하지 못했다. 봄 하락 때는 전체 문의도 함께 줄어 원인을 특정하지 못했다. 10월 4주차에는 전체 문의가 4.3% 줄 때 이 집단의 1명당 문의는 12.7% 줄어, 전체 문의 중 이 집단이 받은 비중도 내려갔다. LIGHT 이용 중개사가 4천 명을 넘은 주다.</p>
 <!--P1--><h3>8월부터 계속 PRO인 중개사 (${fI(D.track[0].n)}명, 주차별)</h3>
 ${chartBox('c-track', '계속 PRO 중개사 1명당 주간 문의 (건)', [['1명당 문의', '--s1']], '주황 = 추석 주차(9/21~27).')}
 ${(() => { const LA = Object.fromEntries(W.map((r) => [r.wk, r.agents_light])); const tr = D.track.slice().reverse();
-  return table(['주차', '1명당 문의', 'WoW', '문의 0건 비율', '상위 25% 기준선', '집단 문의 합계', '전체 문의', '집단 몫', 'LIGHT 중개사'], tr.map((r) => { const i = D.track.indexOf(r), p = D.track[i - 1]; const w = W.find((x) => x.wk === r.wk);
+  return table(['주차', '1명당 문의', 'WoW', '문의 0건 비율', '상위 25% 기준선', '집단 문의 합계', '전체 문의', '집단 비중', 'LIGHT 중개사'], tr.map((r) => { const i = D.track.indexOf(r), p = D.track[i - 1]; const w = W.find((x) => x.wk === r.wk);
     return { cls: w && w.holiday ? 'hol' : '', cells: [w ? wlab(w) : r.wk, f2(r.avg), P(p ? ch(p.avg, r.avg) : null), fS(r.z), fI(r.p75) + '건', fI(r.t), fI(r.all), fS(r.share), fI(LA[r.wk])] }; }),
-    { title: '계속 PRO 중개사 주차별 추적 (2,877명 고정)', note: '전체 문의 = 응답원장에서 같은 주에 모든 중개사가 받은 아파트 문의. 상위 25% 기준선 = 1명당 문의를 큰 순서로 세웠을 때 상위 25% 경계값. 중앙값은 매주 1건으로 같아 표에서 뺐습니다.' }); })()}
-<div class="key"><ul><li>9월 초(2.13~2.14건) 대비 10월 5주차(1.75건) <b>−18%</b>. 감소는 LIGHT 중개사가 4천 명을 넘은 10월 4주차부터 두드러졌습니다(전주 대비 −11.8%).</li>
-<li>같은 기간 전체 문의는 주 8천 건 안팎으로 그대로라, 1명당 감소는 이 집단의 몫이 줄어든 만큼과 거의 같습니다.</li></ul></div>
+    { title: '계속 PRO 중개사 주차별 추적 (2,877명 고정)', note: '전체 문의 = 응답원장에서 같은 주에 모든 중개사가 받은 아파트 문의. 상위 25% 기준선 = 1명당 문의를 큰 순서로 세웠을 때 상위 25% 경계값. 중앙값은 매주 1건으로 같아 표에서 뺐다.' }); })()}
+<div class="key"><ul><li>9월 초(2.13~2.14건) 대비 10월 5주차(1.75건) <b>−18%</b>. 감소는 LIGHT 중개사가 4천 명을 넘은 10월 4주차부터 두드러졌다(전주 대비 −11.8%).</li>
+<li>같은 기간 전체 문의는 주 8천 건 안팎으로 그대로라, 1명당 문의 감소 폭은 전체 문의 중 이 집단이 받은 비중이 줄어든 폭과 거의 같다.</li></ul></div>
 <!--P2--><h3 style="margin-top:6px">전년 같은 계절과 비교</h3>
-<p class="note">2025년에는 7~8월에서 10월 하순으로 가며 매매 실거래와 PRO 문의가 함께 늘었습니다. 2026년에는 매매 실거래가 늘었는데 PRO 문의는 줄었습니다.</p>
+<p class="note">2025년에는 7~8월에서 10월 하순으로 가며 매매 실거래와 PRO 문의가 함께 늘었다. 2026년에는 매매 실거래가 늘었는데 PRO 문의는 줄었다.</p>
 ${table(['구간', '매매 실거래 7~8월', '10월 3~5주', '변화', 'PRO 문의 7~8월', '10월 3~5주', '변화'], [
   ['2025년', fI(a(y25, 's25')), fI(a(o25, 's25')), P(ch(a(y25, 's25'), a(o25, 's25'))), fI(a(y25, 'p25')), fI(a(o25, 'p25')), P(ch(a(y25, 'p25'), a(o25, 'p25')))],
   { cls: 'hl', cells: ['2026년', fI(a(y25, 's26')), fI(a(o25, 's26')), P(ch(a(y25, 's26'), a(o25, 's26'))), fI(a(y25, 'p26')), fI(a(o25, 'p26')), P(ch(a(y25, 'p26'), a(o25, 'p26')))] }],
-  { title: '같은 계절 비교 (주 평균)', note: '전체 문의 중 PRO 비중은 같은 기간 2025년 58.8% → 63.9%, 2026년 78.1% → 70.9%. 2025년 증가분에는 제휴중개사에서 구독으로 옮겨온 몫이 섞여 있어 크기를 그대로 비교할 수는 없습니다.' })}
+  { title: '같은 계절 비교 (주 평균)', note: '전체 문의 중 PRO 비중은 같은 기간 2025년 58.8% → 63.9%, 2026년 78.1% → 70.9%. 2025년 증가분에는 제휴중개사에서 상품 이용으로 옮겨온 문의가 섞여 있어 크기를 그대로 비교할 수는 없다.' })}
 <!--P3-->${table(['지표', '9월 1~3주 평균', '10월 3~5주 평균', '변화'], [
   ['매매 실거래', fI(avg(A9, 'deals')), fI(avg(O10, 'deals')), P(ch(avg(A9, 'deals'), avg(O10, 'deals')))],
-  ['구독 3등급 문의', fI(avg(A9, 'inq_total')), fI(avg(O10, 'inq_total')), P(ch(avg(A9, 'inq_total'), avg(O10, 'inq_total')))],
+  ['상품 3등급 문의', fI(avg(A9, 'inq_total')), fI(avg(O10, 'inq_total')), P(ch(avg(A9, 'inq_total'), avg(O10, 'inq_total')))],
   { cls: 'hl', cells: ['PRO 문의', fI(avg(A9, 'inq_pro')), fI(avg(O10, 'inq_pro')), P(ch(avg(A9, 'inq_pro'), avg(O10, 'inq_pro')))] },
   ['LIGHT 문의', fI(avg(A9, 'inq_light')), fI(avg(O10, 'inq_light')), P(ch(avg(A9, 'inq_light'), avg(O10, 'inq_light')))],
   ['BASIC 문의', fI(avg(A9, 'inq_basic')), fI(avg(O10, 'inq_basic')), P(ch(avg(A9, 'inq_basic'), avg(O10, 'inq_basic')))],
   ['PRO 중개사', fI(avg(A9, 'agents_pro')), fI(avg(O10, 'agents_pro')), P(ch(avg(A9, 'agents_pro'), avg(O10, 'agents_pro')))],
   ['LIGHT 중개사', fI(avg(A9, 'agents_light')), fI(avg(O10, 'agents_light')), P(ch(avg(A9, 'agents_light'), avg(O10, 'agents_light')))],
   ['PRO 1명당 주간 문의', f2(avg(A9, 'inq_pro') / avg(A9, 'agents_pro')), f2(avg(O10, 'inq_pro') / avg(O10, 'agents_pro')), P(ch(avg(A9, 'inq_pro') / avg(A9, 'agents_pro'), avg(O10, 'inq_pro') / avg(O10, 'agents_pro')))]],
-  { title: '9월 초 vs 10월 하순 (주 평균)', note: '추석 직후인 10월 1주차 대신 9월 1~3주를 기준으로 했습니다.' })}
+  { title: '9월 초 vs 10월 하순 (주 평균)', note: '추석 직후인 10월 1주차 대신 9월 1~3주를 기준으로 했다.' })}
 ${table(['주차', '매매 25', '매매 26', 'YoY', 'PRO 25', 'PRO 26', 'YoY'], IDX.map((i) => Y[i]).map((r) => ({ cls: (r.h25 || r.h26) ? 'hol' : '', cells: [r.label + (r.h25 ? ` <span class="tag">25 ${r.h25}</span>` : '') + (r.h26 ? ` <span class="tag">26 ${r.h26}</span>` : ''), fI(r.s25), fI(r.s26), P(ch(r.s25, r.s26)), fI(r.p25), fI(r.p26), P(ch(r.p25, r.p26))] })), { title: '주차별 매매 실거래와 PRO 문의 YoY', max: '30rem' })}
-`; }, after: () => { const LA = Object.fromEntries(W.map((r) => [r.wk, r.agents_light])); draw(document.getElementById('c-trackL'), { rows: D.trackL.map((r) => { const w = W.find((x) => x.wk === r.k); return { ...r, sh: r.share * 10, _x: sl(w.label), _t: w.label + ' · ' + period(r.k), _hol: !!(w && w.holiday) }; }), label: '3월부터 계속 PRO', fmt: f1, lo: 0, series: [{ k: 'avg', n: '1명당 문의', c: '--s1', f: f2 }, { k: 'sh', n: '집단 몫', c: '--s2', dash: 1, thin: 1, f: (v) => (v * 10).toFixed(1) + '%' }] }); draw(document.getElementById('c-track'), { rows: D.track.map((r) => { const w = W.find((x) => x.wk === r.wk); return { ...r, la: LA[r.wk] / 1000, _x: sl(w.label), _t: w.label + ' · ' + period(r.wk), _hol: !!w.holiday }; }), label: '계속 PRO 1명당 문의', fmt: f1, lo: 0, series: [{ k: 'avg', n: '1명당 문의', c: '--s1', f: f2 }] }); } });
+`; }, after: () => { const LA = Object.fromEntries(W.map((r) => [r.wk, r.agents_light])); draw(document.getElementById('c-trackL'), { rows: D.trackL.map((r) => { const w = W.find((x) => x.wk === r.k); return { ...r, sh: r.share * 10, _x: sl(w.label), _t: w.label + ' · ' + period(r.k), _hol: !!(w && w.holiday) }; }), label: '3월부터 계속 PRO', fmt: f1, lo: 0, series: [{ k: 'avg', n: '1명당 문의', c: '--s1', f: f2 }, { k: 'sh', n: '집단 비중', c: '--s2', dash: 1, thin: 1, f: (v) => (v * 10).toFixed(1) + '%' }] }); draw(document.getElementById('c-track'), { rows: D.track.map((r) => { const w = W.find((x) => x.wk === r.wk); return { ...r, la: LA[r.wk] / 1000, _x: sl(w.label), _t: w.label + ' · ' + period(r.wk), _hol: !!w.holiday }; }), label: '계속 PRO 1명당 문의', fmt: f1, lo: 0, series: [{ k: 'avg', n: '1명당 문의', c: '--s1', f: f2 }] }); } });
 
 C.push({ id: 'light', name: 'LIGHT 무료화', render: () => {
-  const order = [['PRO', 'PRO'], ['BASIC', 'BASIC'], ['LIGHT', 'LIGHT'], ['PRO', 'LIGHT'], ['PRO', 'BASIC'], ['PRO', '미구독'], ['미구독', 'PRO'], ['BASIC', 'PRO'], ['LIGHT', 'PRO'], ['BASIC', 'LIGHT'], ['BASIC', '미구독'], ['미구독', 'LIGHT']];
-  const cr = order.map(([a, b]) => cf(a, b)).filter(Boolean).map((c) => ({ cls: (c.frm === '미구독' && c.to === 'LIGHT') || (c.frm === 'PRO' && c.to === 'PRO') ? 'hl' : '', cells: [c.frm + ' → ' + c.to, fI(c.n), fI(c.t1), fI(c.t2), P(ch(c.t1, c.t2)), f2(c.a1), f2(c.a2), f2(c.m1), f2(c.m2), fS(c.z1), fS(c.z2)] }));
+  const order = [['PRO', 'PRO'], ['BASIC', 'BASIC'], ['LIGHT', 'LIGHT'], ['PRO', 'LIGHT'], ['PRO', 'BASIC'], ['PRO', '미이용'], ['미이용', 'PRO'], ['BASIC', 'PRO'], ['LIGHT', 'PRO'], ['BASIC', 'LIGHT'], ['BASIC', '미이용'], ['미이용', 'LIGHT']];
+  const cr = order.map(([a, b]) => cf(a, b)).filter(Boolean).map((c) => ({ cls: (c.frm === '미이용' && c.to === 'LIGHT') || (c.frm === 'PRO' && c.to === 'PRO') ? 'hl' : '', cells: [c.frm + ' → ' + c.to, fI(c.n), fI(c.t1), fI(c.t2), P(ch(c.t1, c.t2)), f2(c.a1), f2(c.a2), f2(c.m1), f2(c.m2), fS(c.z1), fS(c.z2)] }));
   const dj = D.danji.all, ds = D.danji.sel;
   const dr = (n, r) => [n, fI(r.n), fI(r.t1), fI(r.t2), P(ch(r.t1, r.t2)), fI(r.p1), fI(r.p2), P(ch(r.p1, r.p2)), fS(r.p1 / r.t1), fS(r.p2 / r.t2)];
   return `
 <div><div class="eyebrow">08 / 12 · LIGHT 무료화와 신규 중개사</div><h2>새로 들어온 LIGHT 중개사가 문의를 나눠 가졌고, 기존 중개사의 몫이 등급과 관계없이 비슷하게 줄었다</h2></div>
-<p class="lede">10월부터 LIGHT를 무료로 운영하면서 사무소 수가 크게 늘고 있고, 앞으로도 계속 무료로 운영됩니다(사용자 제공 정보). 같은 중개사를 9/20과 11/1 구독 스냅샷으로 추적해, 응답원장(채팅·콜백·전화) 문의를 비교했습니다.</p>
-<div class="big"><div><b>${fI(newLight.n)}명</b><span>9월 미구독 → 10월 LIGHT</span></div><div><b>${fI(newLight.t2)}건/주</b><span>이들이 받은 문의 (LIGHT 문의의 ${fS(newLight.t2 / lightAll2)})</span></div><div><b>${fP(ch(proStay.a1, proStay.a2))}</b><span>계속 PRO인 ${fI(proStay.n)}명의 1명당 문의</span></div><div><b>${fP(ch(D.coh_tot[0], D.coh_tot[1]))}</b><span>전체 문의 (주 ${fI(D.coh_tot[0])} → ${fI(D.coh_tot[1])}건)</span></div></div>
-${table(['9/20 → 11/1', '인원', '9월 1~3주 문의', '10월 3~5주 문의', '증감', '1명당 9월', '1명당 10월', '중앙값 9월', '중앙값 10월', '0건 9월', '0건 10월'], cr, { title: '등급 이동별 주간 문의 (주 평균, 건)', note: '문의 = 응답원장 기준 아파트 문의(매물·단지·중개사 프로필). 클릭 로그 기준인 다른 장의 문의 수와 조금 다릅니다.' })}
-<!--L1-->${table(['요인', '인원', '주간 PRO 문의 영향'], [['계속 PRO인 중개사의 1명당 문의 감소', fI(proStay.n) + '명', '−' + fI(proStay.t1 - proStay.t2)], ['PRO를 떠난 중개사 몫 (LIGHT·BASIC·해지)', fI(proLeftN) + '명', '−' + fI(proLeftT1)], ['새로 PRO가 된 중개사 몫', fI(proNewN) + '명', '+' + fI(proNewT2)], { cls: 'sum', cells: ['합계', '', (pro2 - pro1 > 0 ? '+' : '−') + fI(Math.abs(pro2 - pro1)) + ` (주 ${fI(pro1)} → ${fI(pro2)})`] }], { title: '③ PRO 문의 감소 분해: 남은 PRO vs 떠난 PRO (응답원장)' })}
+<p class="lede">10월부터 LIGHT를 무료로 운영하면서 사무소 수가 크게 늘고 있고, 앞으로도 계속 무료로 운영된다(사용자 제공 정보). 같은 중개사를 9/20과 11/1 상품 이용 스냅샷으로 추적해, 응답원장(채팅·콜백·전화) 문의를 비교했다.</p>
+<div class="big"><div><b>${fI(newLight.n)}명</b><span>9월 미이용 → 10월 LIGHT</span></div><div><b>${fI(newLight.t2)}건/주</b><span>이들이 받은 문의 (LIGHT 문의의 ${fS(newLight.t2 / lightAll2)})</span></div><div><b>${fP(ch(proStay.a1, proStay.a2))}</b><span>계속 PRO인 ${fI(proStay.n)}명의 1명당 문의</span></div><div><b>${fP(ch(D.coh_tot[0], D.coh_tot[1]))}</b><span>전체 문의 (주 ${fI(D.coh_tot[0])} → ${fI(D.coh_tot[1])}건)</span></div></div>
+${table(['9/20 → 11/1', '인원', '9월 1~3주 문의', '10월 3~5주 문의', '증감', '1명당 9월', '1명당 10월', '중앙값 9월', '중앙값 10월', '0건 9월', '0건 10월'], cr, { title: '등급 이동별 주간 문의 (주 평균, 건)', note: '문의 = 응답원장 기준 아파트 문의(매물·단지·중개사 프로필). 클릭 로그 기준인 다른 장의 문의 수와 조금 다르다.' })}
+<!--L1-->${table(['요인', '인원', '주간 PRO 문의 영향'], [['계속 PRO인 중개사의 1명당 문의 감소', fI(proStay.n) + '명', '−' + fI(proStay.t1 - proStay.t2)], ['PRO를 떠난 중개사가 받던 문의 (LIGHT·BASIC·해지)', fI(proLeftN) + '명', '−' + fI(proLeftT1)], ['새로 PRO가 된 중개사가 받은 문의', fI(proNewN) + '명', '+' + fI(proNewT2)], { cls: 'sum', cells: ['합계', '', (pro2 - pro1 > 0 ? '+' : '−') + fI(Math.abs(pro2 - pro1)) + ` (주 ${fI(pro1)} → ${fI(pro2)})`] }], { title: '③ PRO 문의 감소 분해: 남은 PRO vs 떠난 PRO (응답원장)' })}
 <!--L2--><div class="key"><ul>
-<li>PRO에서 LIGHT로 옮긴 사람은 ${fI(cf('PRO', 'LIGHT').n)}명이고, 이들이 LIGHT로 가져간 문의는 주 ${fI(cf('PRO', 'LIGHT').t2)}건입니다. PRO 감소의 주된 원인은 등급 이동보다 <b>남아 있는 PRO의 1명당 문의 감소</b>입니다. 그 1명당 감소는 같은 수요를 신규 LIGHT 중개사와 나눠 받으면서 생긴 것으로 보입니다(이 장 위쪽 분해) <span class="inf">[추론]</span>.</li>
-<li>계속 BASIC(${fP(ch(cf('BASIC', 'BASIC').t1, cf('BASIC', 'BASIC').t2))}), 계속 LIGHT(${fP(ch(cf('LIGHT', 'LIGHT').t1, cf('LIGHT', 'LIGHT').t2))})도 PRO(${fP(ch(proStay.t1, proStay.t2))})와 비슷하게 줄었습니다.</li>
-<li><span class="inf">[추론]</span> 전체 문의가 거의 그대로인 상태에서 신규 LIGHT 중개사가 주 ${fI(newLight.t2)}건을 받아, 기존 중개사들의 몫이 10% 안팎씩 줄어든 모양입니다.</li></ul></div>
+<li>PRO에서 LIGHT로 옮긴 사람은 ${fI(cf('PRO', 'LIGHT').n)}명이고, 이들이 LIGHT로 가져간 문의는 주 ${fI(cf('PRO', 'LIGHT').t2)}건이다. PRO 문의 감소에는 등급 이동보다 <b>PRO를 유지한 중개사의 1명당 문의 감소</b>가 더 크게 기여했다(부록 J 분해). 이 감소는 같은 수요를 신규 LIGHT 중개사와 나눠 받으면서 생긴 것으로 보인다 <span class="inf">[추론]</span>.</li>
+<li>계속 BASIC(${fP(ch(cf('BASIC', 'BASIC').t1, cf('BASIC', 'BASIC').t2))}), 계속 LIGHT(${fP(ch(cf('LIGHT', 'LIGHT').t1, cf('LIGHT', 'LIGHT').t2))})도 PRO(${fP(ch(proStay.t1, proStay.t2))})와 비슷하게 줄었다.</li>
+<li><span class="inf">[추론]</span> 전체 문의가 거의 그대로인 상태에서 신규 LIGHT 중개사가 주 ${fI(newLight.t2)}건을 받아, 기존 중개사들이 받은 문의가 10% 안팎씩 줄어든 모양이다.</li></ul></div>
 <!--L3-->${table(['단지 구분', '단지 수', '단지 문의 9월', '10월', '증감', '계속 PRO 9월', '10월', '증감', 'PRO 비중 9월', '10월'], [dr('신규 LIGHT 유입 단지', dj['LIGHT유입']), dr('미유입 · 10월 문의 있는 단지', dj['미유입(P2 문의 있음)']), dr('미유입 단지 전체', dj['미유입'])],
-  { title: '같은 단지 기준 비교 (주 평균, 두 기간 중 한 번이라도 문의가 있었던 단지)', note: `LIGHT 유입 단지 = 10월에 신규 LIGHT 중개사가 문의를 받은 단지. 9월에 PRO 문의가 있었던 단지로만 범위를 바꾸면 유입 단지 PRO ${fP(ch(ds['LIGHT유입'].p1, ds['LIGHT유입'].p2))}, 미유입 단지 PRO ${fP(ch(ds['미유입'].p1, ds['미유입'].p2))}로 그림이 달라집니다. 단지 정보가 붙은 문의는 전체의 절반 정도(PRO 49%, LIGHT 35%)라 방향 참고용입니다.` })}
-<div class="key"><ul><li>LIGHT가 들어온 단지는 단지 전체 문의가 늘었는데도 계속 PRO 문의는 줄었고, 단지 내 PRO 비중이 ${fS(dj['LIGHT유입'].p1 / dj['LIGHT유입'].t1)} → ${fS(dj['LIGHT유입'].p2 / dj['LIGHT유입'].t2)}로 내려갔습니다. <span class="inf">[추론]</span> 단지 안에서 문의가 나뉘는 효과는 보이지만, 비교 범위에 따라 결과가 달라져 확정할 수는 없습니다.</li>
-<li>등급별 노출량은 확인하지 못했습니다. 노출 로그 큐브에 중개사·등급 정보가 없어, 노출 대비 문의 전환율은 별도 로그가 필요합니다.</li></ul></div>
+  { title: '같은 단지 기준 비교 (주 평균, 두 기간 중 한 번이라도 문의가 있었던 단지)', note: `LIGHT 유입 단지 = 10월에 신규 LIGHT 중개사가 문의를 받은 단지. 9월에 PRO 문의가 있었던 단지로만 범위를 바꾸면 유입 단지 PRO ${fP(ch(ds['LIGHT유입'].p1, ds['LIGHT유입'].p2))}, 미유입 단지 PRO ${fP(ch(ds['미유입'].p1, ds['미유입'].p2))}로 그림이 달라진다. 단지 정보가 붙은 문의는 전체의 절반 정도(PRO 49%, LIGHT 35%)라 방향 참고용이다.` })}
+<div class="key"><ul><li>LIGHT가 들어온 단지는 단지 전체 문의가 늘었는데도 계속 PRO 문의는 줄었고, 단지 내 PRO 비중이 ${fS(dj['LIGHT유입'].p1 / dj['LIGHT유입'].t1)} → ${fS(dj['LIGHT유입'].p2 / dj['LIGHT유입'].t2)}로 내려갔다. <span class="inf">[추론]</span> 단지 안에서 문의가 나뉘는 효과는 보이지만, 비교 범위에 따라 결과가 달라져 확정할 수는 없다.</li>
+<li>등급별 노출량은 확인하지 못했다. 노출 로그 큐브에 중개사·등급 정보가 없어, 노출 대비 문의 전환율은 별도 로그가 필요하다.</li></ul></div>
 `; } });
 
 C.push({ id: 'cause', name: '원인 검토', render: () => {
@@ -376,21 +394,21 @@ C.push({ id: 'cause', name: '원인 검토', render: () => {
   const demandEff = p9 * (all10 / all9 - 1), shareEff = (p10 - p9) - demandEff;
   return `
 <div><div class="eyebrow">09 / 12 · 원인 검토</div><h2>9월 → 10월 PRO 감소는 거의 전부 '몫'의 변화다. 시장 영향은 확인되지 않았다</h2></div>
-<p class="lede">PRO 문의 = 플랫폼 전체 문의 × PRO가 차지하는 몫입니다. 9월 초에서 10월 하순 사이 플랫폼 전체 문의와 문의한 사람 수는 그대로였고, PRO의 몫이 ${sh(p9, all9)}에서 ${sh(p10, all10)}로 줄었습니다.</p>
+<p class="lede">PRO 문의 = 플랫폼 전체 문의 × PRO가 차지하는 몫이다. 9월 초에서 10월 하순 사이 플랫폼 전체 문의와 문의한 사람 수는 그대로였고, PRO의 몫이 ${sh(p9, all9)}에서 ${sh(p10, all10)}로 줄었다.</p>
 <!--A-->${table(['수요 지표 (직방+호갱노노, 주 평균)', '8월', '9월 1~3주', '10월 3~5주', '9월 대비'], [
-  ['아파트 조회 유저', fI(V(g.aug)), fI(V(g.sep)), fI(V(g.oct)), P(ch(V(g.sep), V(g.oct)))],
+  ['아파트 단지 조회 유저', fI(V(g.aug)), fI(V(g.sep)), fI(V(g.oct)), P(ch(V(g.sep), V(g.oct)))],
   ['문의한 유저', fI(U(g.aug)), fI(U(g.sep)), fI(U(g.oct)), P(ch(U(g.sep), U(g.oct)))],
   ['문의 전체 (받는 중개사 유형 모두)', fI(Q(g.aug)), fI(Q(g.sep)), fI(Q(g.oct)), P(ch(Q(g.sep), Q(g.oct)))],
   ['유저 1명당 문의', f2(Q(g.aug) / U(g.aug)), f2(Q(g.sep) / U(g.sep)), f2(Q(g.oct) / U(g.oct)), P(ch(Q(g.sep) / U(g.sep), Q(g.oct) / U(g.oct)))],
   ['매매 실거래 (신고주 코호트)', fI(avg(W.slice(31, 35), 'deals')), fI(avg(A9, 'deals')), fI(avg(O10, 'deals')), P(ch(avg(A9, 'deals'), avg(O10, 'deals')))]],
-  { title: '조회 유저는 줄었고 문의는 유지됐다', note: '조회·문의 유저는 플랫폼별 고유 유저를 더한 값(두 앱을 모두 쓴 유저는 중복). 로그인 사용자 기준. 8월 = 8월 1~4주차.' })}
-<!--B-->${table(['받는 중개사', '9월 1~3주', '몫', '10월 3~5주', '몫', '변화'], [
+  { title: '단지 조회 유저는 줄었고 문의는 유지됐다', note: '조회·문의 유저는 플랫폼별 고유 유저를 더한 값(두 앱을 모두 쓴 유저는 중복). 로그인 사용자 기준. 8월 = 8월 1~4주차.' })}
+<!--B-->${table(['받는 중개사', '9월 1~3주', '비중', '10월 3~5주', '비중', '변화'], [
   { cls: 'hl', cells: ['PRO', fI(p9), sh(p9, all9), fI(p10), sh(p10, all10), fI(p10 - p9)] },
   ['LIGHT', fI(l9), sh(l9, all9), fI(l10), sh(l10, all10), '+' + fI(l10 - l9)],
   ['BASIC', fI(b9), sh(b9, all9), fI(b10), sh(b10, all10), fI(b10 - b9)],
-  ['기타 (제휴·로컬·분양·미구독)', fI(all9 - sub9), sh(all9 - sub9, all9), fI(all10 - sub10), sh(all10 - sub10, all10), fI((all10 - sub10) - (all9 - sub9))],
+  ['기타 (제휴·로컬·분양·미이용)', fI(all9 - sub9), sh(all9 - sub9, all9), fI(all10 - sub10), sh(all10 - sub10, all10), fI((all10 - sub10) - (all9 - sub9))],
   { cls: 'sum', cells: ['합계', fI(all9), '100%', fI(all10), '100%', fI(all10 - all9)] }],
-  { title: '① 몫이 PRO·BASIC·기타에서 LIGHT로 옮겨갔다 (주 평균, 건)' })}
+  { title: '① PRO·BASIC·기타가 받은 문의는 줄고, LIGHT가 받은 문의는 늘었다 (주 평균, 건)' })}
 <!--B2-->${table(['PRO 문의 변화 분해', '주간 건수', '비중'], [['전체 문의 증감 효과 (몫이 그대로였다면)', fI(demandEff), fS(demandEff / (p10 - p9))], ['PRO 몫 감소 효과', fI(shareEff), fS(shareEff / (p10 - p9))], { cls: 'sum', cells: ['합계', fI(p10 - p9), '100%'] }], { title: '② PRO 감소 분해: 전체 수요 효과 vs 몫 효과 (클릭 로그)' })}
 <!--C--><div class="key"><h3>시장 상황 (외부 자료)</h3><ul>
 <li>KB 매수우위지수: 서울 64.1로 10월 초부터 3주 연속 하락, 강북 69.3, 강남 59.4 (10/31 기사, 기준선 100).</li>
@@ -398,57 +416,57 @@ C.push({ id: 'cause', name: '원인 검토', render: () => {
 <li>8월 전국 주택 매매 거래 4.8만 건, 전월 대비 −23.5%, 아파트 −25.2%. 원인으로 다주택자 양도세 중과 재개 전 매물 소화 마무리, 세제 개편안 전후 관망세 (KB 10월호).</li>
 <li>10월 4주 서울 매매가 +0.09%로 상승폭 둔화, 전셋값 +0.17%로 확대 (한국부동산원, 11/2 기사).</li></ul></div>
 <!--D--><div class="key"><h3>판단</h3><ul>
-<li><b>9월 → 10월 PRO 감소는 LIGHT로의 몫 이동으로 나타났습니다.</b> 문의한 사람 수와 1명당 문의 수가 그대로인데 PRO 몫만 줄었고, 같은 기간 늘어난 몫은 거의 LIGHT가 가져갔습니다. 아래 중개사 추적에서 보듯 그 LIGHT 문의의 81%는 새로 무료 LIGHT를 시작한 중개사가 받았습니다.</li>
-<li><b>LIGHT가 문의 총량을 늘리지는 못했습니다.</b> 구독 중개사가 9/20 4,554명 → 11/1 8,968명으로 2배 가까이 늘었는데 문의한 사람 수, 1명당 문의 수가 모두 그대로입니다. 빈 단지·새 집을 채운 LIGHT 매물은 문의를 받았지만 규모가 작았습니다(05장). <span class="inf">[추론]</span> 지금까지 무료 LIGHT는 수요를 늘리기보다 같은 수요를 더 많은 중개사가 나눠 받는 구조로 작동하고 있습니다.</li>
-</ul></div><!--E--><div class="key"><h3>판단</h3><ul><li><b>시장 영향은 확정할 수 없습니다.</b> 아파트 조회 유저는 8월보다 ${fP(ch(V(g.aug), V(g.oct)))}, 9월 초보다 ${fP(ch(V(g.sep), V(g.oct)))}이고, 문의 전체는 9~10월 전년보다 4% 안팎 낮으며, 외부 지표도 매수심리 하락을 가리킵니다. <span class="inf">[추론]</span> 전체 문의가 늘지 않는 배경일 수는 있지만, 같은 기간 실거래는 늘었습니다. 9/28 이후 늘어난 노출 매물은 거의 모두 신규 LIGHT 매물이라(05장), 매물 1천 개당 문의 감소는 매물 적체보다 LIGHT 매물 증가 영향이 큽니다.</li>
-<li><b>10월 실거래 증가(+16%)는 플랫폼 수요 증가로 이어지지 않았습니다.</b> 같은 기간 조회·문의 유저는 늘지 않았고, 전년 같은 주와 비교하면 10월 3~5주 매매는 −10.9%입니다(02장). 작년 10월은 연휴 반등과 10·15 대책 발표·시행 전후가 겹쳐 비교 기준으로 쓰기 어렵습니다(부록 D). <span class="inf">[추론]</span> 가을 이사철 계절 증가일 가능성이 있고, 실거래가 문의보다 몇 주 늦게 잡히는 시차도 있어 이 3주만으로 시장 회복이라고 보기는 어렵습니다.</li>
-<li>정리하면, <b>PRO 문의 감소는 LIGHT로의 몫 이동으로 나타났고(04·05장)</b>, 시장 냉각은 전체 수요가 늘지 않는 배경일 가능성이 있으나 확인되지 않았습니다. LIGHT는 앞으로도 계속 무료로 운영되므로(사용자 제공 정보), 시장이 회복돼도 지금 구조라면 늘어난 문의를 LIGHT와 나눠 갖게 됩니다 <span class="inf">[추론]</span>.</li></ul></div>
-<p class="note">한계: 비교 구간이 3주씩이고, 2025년 10월은 10·15 대책 영향으로 계절 기준으로 쓰기 어렵습니다. 시장 자료 출처: <a href="https://m.sedaily.com/article/20108563" target="_blank" rel="noopener">서울경제 10/31</a> · <a href="https://kbthink.com/realestate/insights/research/261015-3.html" target="_blank" rel="noopener">KB주택시장 리뷰 10월호</a> · <a href="https://www.biztribune.co.kr/news/articleView.html?idxno=361690" target="_blank" rel="noopener">비즈트리뷴 11/2</a></p>
+<li><b>9월 → 10월 PRO 감소는 LIGHT로의 몫 이동으로 나타났다.</b> 문의한 사람 수와 1명당 문의 수가 그대로인데 PRO 몫만 줄었고, 같은 기간 늘어난 몫은 거의 LIGHT가 가져갔다. 아래 중개사 추적에서 보듯 그 LIGHT 문의의 81%는 새로 무료 LIGHT를 시작한 중개사가 받았다.</li>
+<li><b>LIGHT가 문의 총량을 늘리지는 못했다.</b> 상품 이용 중개사가 9/20 4,554명 → 11/1 8,968명으로 2배 가까이 늘었는데 문의한 사람 수, 1명당 문의 수가 모두 그대로다. 빈 단지·새 집을 채운 LIGHT 매물은 문의를 받았지만 규모가 작았다(03장). <span class="inf">[추론]</span> 지금까지 무료 LIGHT는 수요를 늘리기보다 같은 수요를 더 많은 중개사가 나눠 받는 구조로 작동하고 있다.</li>
+</ul></div><!--E--><div class="key"><h3>판단</h3><ul><li><b>시장 영향은 확정할 수 없다.</b> 아파트 단지 조회 유저는 8월보다 ${fP(ch(V(g.aug), V(g.oct)))}, 9월 초보다 ${fP(ch(V(g.sep), V(g.oct)))}이고, 문의 전체는 9~10월 전년보다 4% 안팎 낮으며, 외부 지표도 매수심리 하락을 가리킴. <span class="inf">[추론]</span> 전체 문의가 늘지 않는 배경일 수는 있지만, 같은 기간 실거래는 늘었다. 9/28 이후 늘어난 노출 매물은 거의 모두 신규 LIGHT 매물이라(03장), 매물 1천 개당 문의 감소는 매물 적체보다 LIGHT 매물 증가 영향이 크다.</li>
+<li><b>10월 실거래 증가(+16%)는 플랫폼 수요 증가로 이어지지 않았다.</b> 같은 기간 조회·문의 유저는 늘지 않았고, 전년 같은 주와 비교하면 10월 3~5주 매매는 −10.9%다(부록 A). 작년 10월은 연휴 반등과 10·15 대책 발표·시행 전후가 겹쳐 비교 기준으로 쓰기 어렵다(부록 D). <span class="inf">[추론]</span> 가을 이사철 계절 증가일 가능성이 있고, 실거래가 문의보다 몇 주 늦게 잡히는 시차도 있어 이 3주만으로 시장 회복이라고 보기는 어렵다.</li>
+<li>정리하면, <b>PRO 문의 감소는 LIGHT로의 몫 이동으로 나타났고(부록 J·L)</b>, 시장 냉각은 전체 수요가 늘지 않는 배경일 가능성이 있으나 확인되지 않았다. LIGHT는 앞으로도 계속 무료로 운영되므로(사용자 제공 정보), 시장이 회복돼도 지금 구조라면 늘어난 문의를 LIGHT와 나눠 갖게 된다 <span class="inf">[추론]</span>.</li></ul></div>
+<p class="note">한계: 비교 구간이 3주씩이고, 2025년 10월은 10·15 대책 영향으로 계절 기준으로 쓰기 어렵다. 시장 자료 출처: <a href="https://m.sedaily.com/article/20108563" target="_blank" rel="noopener">서울경제 10/31</a> · <a href="https://kbthink.com/realestate/insights/research/261015-3.html" target="_blank" rel="noopener">KB주택시장 리뷰 10월호</a> · <a href="https://www.biztribune.co.kr/news/articleView.html?idxno=361690" target="_blank" rel="noopener">비즈트리뷴 11/2</a></p>
 `; } });
 
 C.push({ id: 'coverage', name: '매물 커버리지', render: () => { const R = D.rdose;
   return `
 <div><div class="eyebrow">10 / 12 · 매물 커버리지</div><h2>신규 LIGHT 매물은 대부분 이미 찬 단지·같은 집에 들어갔고, 그만큼 PRO 문의가 나뉘었다</h2></div>
-<p class="lede">LIGHT 무료화의 목적은 사무소 커버리지를 넓혀 문의를 늘리는 것이었습니다. 9/28 → 11/1 늘어난 아파트 노출 매물(+6.4만 건)은 거의 모두 신규 LIGHT 매물이지만, 빈 단지를 채운 매물은 6.5%였고 문의 총량은 그대로였습니다.</p>
-${table(['9/28 단지 매물', '단지', '9/28 매물', '11/1 매물', '매물 변화', '신규 LIGHT 매물', '문의 전 3주 → 최근 3주', '변화', '신규 LIGHT 비중'], [
-  ['0건 (빈 단지)', '1,845', '0', '5,342', '–', '4,132', '209 → 669', P(2.201), '6.5%'],
-  ['1~2건', '6,757', '9,105', '15,354', P(0.6863), '6,400', '2,075 → 2,168', P(0.045), '10.1%'],
-  ['3~9건', '4,964', '24,611', '36,397', P(0.4789), '12,248', '4,454 → 4,318', P(-0.031), '19.3%'],
-  ['10~29건', '2,094', '34,866', '46,125', P(0.3229), '11,507', '4,705 → 4,394', P(-0.066), '18.1%'],
-  ['30건 이상', '1,546', '135,223', '164,700', P(0.218), '29,185', '8,964 → 8,757', P(-0.023), '46.0%'],
-  { cls: 'hl', cells: ['전체', '17,206', '203,805', '267,918', P(0.3146), '63,472', '20,407 → 20,306', P(-0.005), '100%'] }], { title: '① 신규 LIGHT 매물이 들어간 단지 (9/28 매물 구간별)', note: '문의 = 직방+호갱노노 아파트 문의를 단지별로 합친 값, 8/31~9/20 vs 10/12~11/1. 빈 단지 행은 11/1에 매물이 생긴 단지만 셈.' })}
+<p class="lede">LIGHT 무료화의 목적은 사무소 커버리지를 넓혀 문의를 늘리는 것이었다. 9/28 → 11/1 늘어난 직방 광고매물(+6.7만 건)은 대부분 신규 LIGHT 매물이지만, 빈 단지를 채운 매물은 11.2%였고 문의 총량은 그대로였다.</p>
+${table(['9/28 단지 매물', '단지', '세대수<br>(중앙값)', '매물 9/28 → 11/1', '변화', '신규 LIGHT 매물', '비중', '신규 LIGHT가<br>들어간 단지', '들어간 단지 문의<br>오픈 전 → 최근', '변화'], [
+  ['0건 (빈 단지)', '2,533', '299', '0 → 8,749', H('–'), '7,111', '11.2%', '1,786', '187 → 666', H(P(666 / 187 - 1))],
+  ['1~2건', '4,931', '320', '6,612 → 13,573', H(P(1.0528)), '6,545', '10.3%', '1,308', '661 → 784', H(P(0.186))],
+  ['3~9건', '3,667', '479', '18,316 → 29,728', H(P(0.6231)), '11,019', '17.4%', '1,515', '1,661 → 1,953', H(P(0.176))],
+  ['10~29건', '1,866', '650', '31,366 → 42,015', H(P(0.3395)), '10,438', '16.4%', '1,087', '2,605 → 2,489', H(P(-0.045))],
+  ['30건 이상', '1,448', '998', '128,127 → 157,659', H(P(0.23048)), '28,359', '44.7%', '1,105', '6,597 → 6,675', H(P(0.012))],
+  { cls: 'hl', cells: ['전체', '14,445', '–', '184,421 → 251,724', H(P(0.3649)), '63,472', '100%', '6,801', '11,711 → 12,567', H(P(0.073))] }], { title: '① 9/28 매물 구간별: 신규 LIGHT 매물이 들어간 곳과 그 단지들의 문의 변화', note: '세대수 = 구간 단지의 세대수 중앙값(단지 마스터, 사내 분석 큐브로 직접 집계). 매물이 적던 단지일수록 규모가 작다(평균 418·429·596·779·1,215세대). 단지·매물은 그 구간의 모든 단지 기준이고, 문의는 그중 신규 LIGHT가 들어간 단지만 합친 값이다. 구간 전체(안 들어간 단지 포함) 문의는 19,736 → 19,735건으로 제자리였다(구간별 비교는 부록 L ①). 매물 = 직방 광고매물(우동매 등 제휴 제외) 9/28·11/1 스냅샷. 비중 = 신규 LIGHT 매물 중 이 구간에 들어간 비율. 문의 = 직방+호갱노노 아파트 문의를 단지별로 합친 3주 합계, LIGHT 오픈 전 8/31~9/20 → 최근 10/12~11/1. 빈 단지 행의 단지 수는 11/1에 매물이 생긴 단지만 센다(두 날 모두 0건이고 문의만 있던 792곳 제외). 빈 단지는 원래 문의가 적어(단지당 3주 약 0.1건) 증감률이 크게 나온다.' })}
 <!--M1-->${table(['같은 집을 올린 사무소', '집', '매물', '최근 3주 문의', '매물 100건당', '집 100개당'], [
-  ['1곳', '107,754', '107,774', '6,132', '5.7', '5.7'], ['2곳', '26,799', '53,613', '1,495', '2.8', '5.6'], ['3~4곳', '15,851', '52,600', '913', '1.7', '5.8'], ['5곳 이상', '6,294', '40,656', '496', '1.2', '7.9']], { title: '② 같은 집(동·호)에 사무소가 겹치면 문의는 늘지 않고 나뉜다', note: '집 = 같은 호 + 같은 거래유형. 같은 집에 올린 사무소가 1~4곳이면 집이 받는 문의는 집 100개당 5.6~5.8건으로 비슷하고(5곳 이상은 7.9건), 매물 1건 몫만 줄어듭니다. 같은 동·호에 2곳 이상 올린 집은 LIGHT 매물을 빼면 34,980개, 현재 48,944개(+40%).' })}
+  ['1곳', '107,754', '107,774', '6,132', '5.7', '5.7'], ['2곳', '26,799', '53,613', '1,495', '2.8', '5.6'], ['3~4곳', '15,851', '52,600', '913', '1.7', '5.8'], ['5곳 이상', '6,294', '40,656', '496', '1.2', '7.9']], { title: '② 같은 집(동·호)에 사무소가 겹치면 문의는 늘지 않고 나뉜다', note: '집 = 같은 호 + 같은 거래유형. 같은 집에 올린 사무소가 1~4곳이면 집이 받는 문의는 집 100개당 5.6~5.8건으로 비슷하고(5곳 이상은 7.9건), 매물 1건이 받는 문의만 줄어든다. 같은 동·호에 2곳 이상 올린 집은 LIGHT 매물을 빼면 34,980개, 현재 48,944개(+40%).' })}
 ${table(['구분', '매물', '문의', '매물 100건당 / 변화'], [
   [T('신규 LIGHT: 직방에 없던 집을 채움'), '41,016', '1,514 (최근 3주)', '3.7건'],
   [T('신규 LIGHT: 이미 있던 집에 합류'), '27,513', '288 (최근 3주)', '1.0건'],
   [T('PRO 매물: 같은 집에 LIGHT 합류'), '14,208', '328 → 225', P(-0.31)],
-  [T('PRO 매물: LIGHT 없음'), '64,740', '2,040 → 1,829', P(-0.10)]], { title: '③ 새 집을 채운 LIGHT와 겹친 LIGHT', note: 'PRO 매물은 8/31 전부터 노출 중인 매물. 문의는 매물 단위 문의(단지·중개사 직접 문의 제외). ③의 LIGHT 매물(합 68,529건)은 11/2 현재 노출 매물 중 LIGHT 구독 사무소 매물(구 LIGHT 소수 포함) 기준이라, ①의 신규 LIGHT 매물(63,472건, 11/1 신규 LIGHT 사무소 기준)과 대상이 다릅니다 [미검증: 원 리포트 기준 설명에 따른 해석].' })}
+  [T('PRO 매물: LIGHT 없음'), '64,740', '2,040 → 1,829', P(-0.10)]], { title: '③ 새 집을 채운 LIGHT와 겹친 LIGHT', note: 'PRO 매물은 8/31 전부터 노출 중인 매물. 문의는 매물 단위 문의(단지·중개사 직접 문의 제외). 위 표의 LIGHT 매물(합 68,529건)은 11/2 현재 노출 매물 중 LIGHT 이용 사무소 매물(구 LIGHT 소수 포함) 기준이라, 03장 ①의 신규 LIGHT 매물(63,472건, 11/1 신규 LIGHT 사무소 기준)과 대상이 다르다 [미검증: 원 리포트 기준 설명에 따른 해석].' })}
 <!--M2-->${table(['권역', '같은 단지 LIGHT ÷ PRO 매물', '시군구', 'PRO 사무소 문의', '변화', 'PRO 외 사무소 문의 변화 (LIGHT·BASIC 등)'], [
   ['수도권', '10% 미만', '14', '3,763 → 3,748', P(-0.004), P(0.163)], ['', '10~25%', '23', '4,582 → 3,544', P(-0.227), P(0.153)], ['', '25~50%', '16', '2,362 → 2,084', P(-0.118), P(0.346)], ['', '50% 이상', '7', '851 → 652', P(-0.234), P(0.586)],
-  ['지방', '10% 미만', '4', '347 → 339', P(-0.023), P(-0.028)], ['', '10~25%', '10', '1,151 → 1,195', P(0.038), P(0.279)], ['', '25~50%', '5', '655 → 647', P(-0.012), P(1.371)], ['', '50% 이상', '14', '1,317 → 1,309', P(-0.006), P(1.126)]], { title: '④ 수도권에서는 같은 단지 LIGHT 비율 10% 미만 시군구보다 그 이상인 시군구의 PRO 문의 감소폭이 컸다', note: '대상: 11/1 PRO 매물 200건 이상 · 전 3주 PRO 문의 50건 이상 시군구 93곳. 수도권 "10% 미만"은 평택·인천 검단·연수 등 신도시 위주라 지역 성격 차이가 섞여 있습니다. 시군구 하나하나는 흩어짐이 커 묶음 단위로 읽습니다. PRO 외 사무소 = LIGHT·BASIC이 대부분이고 제휴·로컬·미구독 등 나머지 사무소도 포함(리포트 기준).' })}
-<!--M3-->${table(['LIGHT 유입 4분위', '시군구', '기존 구독 1명당 신규 LIGHT', '지역 전체 문의', '계속 PRO 1명당 문의', 'PRO 몫'], R.map((r) => ({ cls: r.q === 4 ? 'hl' : '', cells: [r.q + (r.q === 1 ? ' (적음)' : r.q === 4 ? ' (많음)' : ''), r.regions, r.ex.toFixed(2) + '명', P(r.dch), P(r.pch), fS(r.proshare1) + ' → ' + fS(r.proshare2)] })), { title: '⑤ 중개사무소 소재 시군구 기준 (응답원장, 9월 1~3주 → 10월 3~5주)', note: `계속 PRO 15명 이상 시군구 ${D.rdose_reg.n}곳. 지역 전체 문의 변화를 같게 놓으면 신규 LIGHT가 기존 구독 1명당 1명 늘 때 계속 PRO 1명당 문의 ${(D.rdose_reg.b < 0 ? '−' : '+') + Math.abs(D.rdose_reg.b * 100).toFixed(1)}%p (표준오차 ${(D.rdose_reg.se * 100).toFixed(1)}%p). 4분위는 지역 전체 문의가 늘어 PRO 1명당 감소가 작아 보입니다.` })}
-<!--F-->${table(['11/1 단지 매물', '단지', '매물', '최근 3주 문의', '매물 100건당 문의'], [
-  ['0건', '1,226', '0', '576', '–'], ['1~2건', '6,663', '8,975', '1,889', '21.0'], ['3~9건', '5,007', '25,275', '3,758', '14.9'], ['10~29건', '2,585', '43,012', '4,418', '10.3'], ['30건 이상', '2,008', '190,656', '10,025', '5.3']], { title: '① 매물이 얇은 단지일수록 매물 한 건이 받는 문의가 많다', note: '평균값이라 "매물 1건을 더 넣으면 문의가 몇 건 는다"는 뜻은 아닙니다. 매물의 71%가 몰린 30건 이상 단지가 문의는 49%만 받습니다. 11/1 매물 기준 구간이라 05장 ①(9/28 기준)과 단지 수가 다릅니다.' })}
-${table(['지역', '우선 단지', '직방 매물 0건', 'PRO 입점', '조회 유저 (중앙값)', '세대수 (중앙값)'], [['경기', '318', '162', '42', '2,897', '837'], ['서울', '160', '63', '11', '2,181', '777'], ['5대광역시+세종', '16', '10', '1', '2,206', '1,034'], ['기타', '19', '6', '6', '1,214', '820'], ['인천', '5', '2', '1', '2,206', '950'], { cls: 'sum', cells: ['합계', '518', '243', '61', '2,503', '821'] }], { title: '② 우선 단지 (11/1 매물 0~2건, 조회·관심·문의 상위, 518곳)', note: '점수 = 최근 3주(10/12~11/1) 직방+호갱노노 조회 유저·관심·문의 각각의 백분위 평균. 상위 500곳 + 입주 6개월 이내이면서 네이버 매물이 있는 입주예정 18곳. 임대·100세대 미만·입주 6개월 초과 분양/입주예정 제외. 분양 단지는 조회수가 높게 나와 따로 봅니다. 목록은 부록 H, 기존 문의 기준 1,185곳은 부록 G. 선정 기준 대안은 06-1(필요 매물 대비 부족)·06-2(사무소 1곳당 확보 가능 매물).' })}
+  ['지방', '10% 미만', '4', '347 → 339', P(-0.023), P(-0.028)], ['', '10~25%', '10', '1,151 → 1,195', P(0.038), P(0.279)], ['', '25~50%', '5', '655 → 647', P(-0.012), P(1.371)], ['', '50% 이상', '14', '1,317 → 1,309', P(-0.006), P(1.126)]], { title: '④ 수도권에서는 같은 단지 안 LIGHT 매물이 PRO 매물의 10% 이상인 시군구에서 PRO 문의가 더 줄었다', note: '대상: 11/1 PRO 매물 200건 이상 · 전 3주 PRO 문의 50건 이상 시군구 93곳. 수도권 "10% 미만"은 평택·인천 검단·연수 등 신도시 위주라 지역 성격 차이가 섞여 있다. 시군구 하나하나는 흩어짐이 커 묶음 단위로 읽는다. PRO 외 사무소 = LIGHT·BASIC이 대부분이고 제휴·로컬·미이용 등 나머지 사무소도 포함(리포트 기준).' })}
+<!--M3-->${table(['LIGHT 유입 4분위', '시군구', '기존 상품 이용 중개사 1명당 신규 LIGHT', '지역 전체 문의', '계속 PRO 1명당 문의', 'PRO 비중'], R.map((r) => ({ cls: r.q === 4 ? 'hl' : '', cells: [r.q + (r.q === 1 ? ' (적음)' : r.q === 4 ? ' (많음)' : ''), r.regions, r.ex.toFixed(2) + '명', P(r.dch), P(r.pch), fS(r.proshare1) + ' → ' + fS(r.proshare2)] })), { title: '⑤ 중개사무소 소재 시군구 기준 (응답원장, 9월 1~3주 → 10월 3~5주)', note: `계속 PRO 15명 이상 시군구 ${D.rdose_reg.n}곳. 지역 전체 문의 변화를 같게 놓으면 신규 LIGHT가 기존 상품 이용 중개사 1명당 1명 늘 때 계속 PRO 1명당 문의 ${(D.rdose_reg.b < 0 ? '−' : '+') + Math.abs(D.rdose_reg.b * 100).toFixed(1)}%p (표준오차 ${(D.rdose_reg.se * 100).toFixed(1)}%p). 4분위는 지역 전체 문의가 늘어 PRO 1명당 감소가 작아 보인다.` })}
+<!--F-->${table(['단지 매물 (3주 하루 평균)', '단지', '하루 평균 매물', '최근 3주 문의', '매물 100건당 문의', '문의 0건 단지'], [
+  ['0건', '1,321', '260', '1,083', '–', '65%'], ['1~2건', '5,352', '7,061', '2,019', '28.6', '80%'], ['3~9건', '4,008', '20,165', '3,771', '18.7', '61%'], ['10~29건', '2,225', '37,273', '4,297', '11.5', '39%'], ['30~99건', '1,283', '67,281', '4,988', '7.4', '20%'], ['100건 이상', '462', '92,648', '4,508', '4.9', '4%'], { cls: 'sum', cells: ['합계', '14,651', '224,688', '20,666', '9.2', '60%'] }], { title: '① 매물이 적은 단지일수록 매물 1건이 받는 문의가 많다', note: '매물 = 문의와 같은 3주(10/12~11/1) 동안의 단지별 하루 평균 직방 광고매물(제휴 제외), 구간도 이 평균으로 나눈다. 평균값이라 "매물 1건을 더 넣으면 문의가 몇 건 는다"는 뜻은 아니다. 매물의 71%가 몰린 30건 이상 단지가 문의는 46%만 받는다. 이 모양은 신규 LIGHT 전(8/31~9/20, 1~2건 35.9건 · 30건 이상 6.9건)에도 같았고 수도권·지방을 나눠도 같다. 구간 기준이 03장 ①(9/28 하루 값)과 달라 단지 수가 다르다.' })}
+${table(['지역', '우선 단지', '직방 매물 0건', 'PRO 입점', '단지 조회 유저 (중앙값)', '세대수 (중앙값)'], [['서울', '160', '63', '11', '2,181', '777'], ['경기', '318', '162', '42', '2,897', '837'], ['인천', '5', '2', '1', '2,206', '950'], ['5대광역시+세종', '16', '10', '1', '2,206', '1,034'], ['기타', '19', '6', '6', '1,214', '820'], { cls: 'sum', cells: ['합계', '518', '243', '61', '2,503', '821'] }], { title: '② 우선 단지 (11/1 매물 0~2건, 조회·관심·문의 상위, 518곳)', note: '점수 = 최근 3주(10/12~11/1) 직방+호갱노노 단지 조회 유저·관심·문의 각각의 백분위 평균. 상위 500곳 + 입주 6개월 이내이면서 N사 매물이 있는 입주예정 18곳. 임대·100세대 미만·입주 6개월 초과 분양/입주예정 제외. 분양 단지는 조회수가 높게 나와 따로 본다. 목록은 부록 H, 기존 문의 기준 1,185곳은 부록 G. 선정 기준 대안은 부록 N(추정 기준보다 매물이 부족한 단지)·부록 O(사무소 보유 매물이 많은 단지).' })}
 <!--G--><div class="key"><ul>
-<li>신규 LIGHT 매물은 두 갈래로 작동합니다. 직방에 없던 집·빈 단지를 채운 매물은 문의를 새로 만들고, 이미 있던 집·단지에 겹친 매물은 문의를 거의 더하지 못했고, 겹친 집의 PRO 매물 문의 감소가 더 컸습니다.</li>
-<li>수도권은 LIGHT 비율이 낮은 시군구보다 높은 시군구의 PRO 문의 감소폭이 컸고(단계적으로 커지는 형태는 아님), 지방은 PRO 문의가 거의 그대로인 채 PRO 외 사무소(LIGHT·BASIC 등) 문의가 더해졌습니다. 이 결과는 문의 분산 가설을 뒷받침하지만 인과를 확정하지는 않습니다.</li>
-<li><span class="inf">[추론]</span> 빈 단지·빈 동호를 채우는 방향으로 LIGHT 등록을 이끌면 커버리지 확대라는 무료화 목적과 PRO 문의 유지를 함께 가져갈 수 있습니다. 다만 LIGHT가 들어간 단지의 문의 증가(+7.3%)와 안 들어간 단지의 감소(−11.0%)는 중개사의 단지 선택이 섞여 있어 매물 효과로 단정할 수 없습니다.</li>
+<li>신규 LIGHT 매물은 두 갈래로 작동한다. 직방에 없던 집·빈 단지를 채운 매물은 문의를 새로 만들고, 이미 있던 집·단지에 겹친 매물은 문의를 거의 더하지 못했고, 겹친 집의 PRO 매물 문의 감소가 더 컸다.</li>
+<li>수도권은 LIGHT 비율이 낮은 시군구보다 높은 시군구의 PRO 문의 감소폭이 컸고(단계적으로 커지는 형태는 아님), 지방은 PRO 문의가 거의 그대로인 채 PRO 외 사무소(LIGHT·BASIC 등) 문의가 더해졌다. 이 결과는 문의 분산 가설을 뒷받침하지만 인과를 확정하지는 않는다.</li>
+<li><span class="inf">[추론]</span> 빈 단지·빈 동호를 채우는 방향으로 LIGHT 등록을 이끌면 커버리지 확대라는 무료화 목적과 PRO 문의 유지를 함께 가져갈 수 있다. 다만 LIGHT가 들어간 단지의 문의 증가(+7.3%)와 안 들어간 단지의 감소(−10.7%)는 중개사의 단지 선택이 섞여 있어 매물 효과로 단정할 수 없다.</li>
 </ul></div>
-<p class="note">①②③④ 출처: 사내 운영지표 코호트 리포트 "신라이트 매물은 어느 단지에 들어갔나"(11/2 작성, 사용자 제공). 매물 9/28·11/1 스냅샷, 문의 8/31~9/20 vs 10/12~11/1, 직방+호갱노노 단지 합산 기준이라 다른 장의 문의 수와 다릅니다. ⑤는 이 보고서에서 응답원장·구독 스냅샷·중개사 마스터 소재지로 직접 계산했습니다.</p>
+<p class="note">①②③④ 출처: 사내 운영지표 코호트 리포트 "신라이트 매물은 어느 단지에 들어갔나"(11/2 작성, 11/4 사용자 제공본). 매물 9/28·11/1 스냅샷, 문의 8/31~9/20 vs 10/12~11/1, 직방+호갱노노 단지 합산 기준이라 다른 장의 문의 수와 다르다. ⑤는 이 보고서에서 응답원장·상품 이용 스냅샷·중개사 마스터 소재지로 직접 계산했다.</p>
 `; } });
 
 C.push({ id: 'oct2025', name: '2025년 10월', render: () => `
 <div><div class="eyebrow">11 / 12 · 2025년 10월 문의 급증</div><h2>작년 10월 3주차 급증은 긴 추석 연휴 반등과 10·15 대책 직후 수요가 겹친 결과로 보인다</h2></div>
-<p class="lede">2025년 10월 2주차 7,841건에서 3주차 11,619건으로 +48% 늘었습니다(기타 포함 전체 문의). 이 높은 기준 때문에 2026년 10월 3~5주 YoY가 낮게 나옵니다.</p>
+<p class="lede">2025년 10월 2주차 7,841건에서 3주차 11,619건으로 +48% 늘었다(기타 포함 전체 문의). 이 높은 기준 때문에 2026년 10월 3~5주 YoY가 낮게 나온다.</p>
 ${table(['일정', '내용'], [['10/3 ~ 10/9', T('개천절·추석·대체공휴일·한글날 7일 연휴 (10/10 연차 시 최장 10일)')], ['10/15 (수)', T('10·15 부동산 대책 발표')], ['10/16', T('규제지역(조정대상지역·투기과열지구) 효력')], ['10/20 (월)', T('토지거래허가구역 시행: 서울 전역 + 경기 12곳')]], { title: '당시 일정' })}
 ${chartBox('c-daily', '일별 문의 (직방+호갱노노, 2025-10-06 ~ 10-26)', [['직방', '--s1'], ['호갱노노', '--s2']], '9월 평소 주간 약 7,700건 = 하루 평균 약 1,100건.')}
 ${table(['날짜', '요일', '직방', '호갱노노', '합계'], D.daily.map((d) => ({ cls: ['10/15', '10/20'].includes(d.d) ? 'hl' : '', cells: [d.d, d.dow, fI(d.zb), fI(d.hg), fI(d.t)] })), { title: '일별 문의', max: '26rem' })}
-${table(['주차 (2025)', '경기', '서울', '인천', '지방·기타', '미상', '합계'], D.reg25.map((r) => ({ cls: r.label === '10월 3주' ? 'hl' : '', cells: [r.label, fI(r['경기']), fI(r['서울']), fI(r['인천']), fI(r['지방·기타']), fI(r['미상']), fI(r['경기'] + r['서울'] + r['인천'] + r['지방·기타'] + r['미상'])] })), { title: '지역별 주간 문의', note: '10월 2주 → 3주: 경기 +71%, 인천 +43%, 지방·기타 +34%, 서울 +21%. 2025년은 시도 단위로만 조회해 시군구는 나누지 못했습니다.' })}
-<div class="key"><ul><li>증가는 10/10, 즉 대책 발표 전부터 시작됐습니다. 연휴 동안 미뤄진 문의가 몰린 효과가 먼저 있었습니다.</li>
-<li>10/13~17은 하루 1,700~1,800건으로 9월 평소의 약 1.6배였고, 토지거래허가제가 시행된 10/20 이후 조금 내려왔습니다. <span class="inf">[추론]</span> 시행 전 거래를 서두른 수요가 이 수준을 받쳤을 가능성이 있습니다.</li>
-<li><span class="inf">[추론]</span> 경기 증가폭이 가장 큰 것은 규제 대상 경기 12곳의 막차 수요이거나 비규제 지역으로 옮겨간 효과일 수 있습니다.</li></ul></div>
+${table(['주차 (2025)', '경기', '서울', '인천', '지방·기타', '미상', '합계'], D.reg25.map((r) => ({ cls: r.label === '10월 3주' ? 'hl' : '', cells: [r.label, fI(r['경기']), fI(r['서울']), fI(r['인천']), fI(r['지방·기타']), fI(r['미상']), fI(r['경기'] + r['서울'] + r['인천'] + r['지방·기타'] + r['미상'])] })), { title: '지역별 주간 문의', note: '10월 2주 → 3주: 경기 +71%, 인천 +43%, 지방·기타 +34%, 서울 +21%. 2025년은 시도 단위로만 조회해 시군구는 나누지 못했다.' })}
+<div class="key"><ul><li>증가는 10/10, 즉 대책 발표 전부터 시작됐다. 연휴 동안 미뤄진 문의가 몰린 효과가 먼저 있었다.</li>
+<li>10/13~17은 하루 1,700~1,800건으로 9월 평소의 약 1.6배였고, 토지거래허가제가 시행된 10/20 이후 조금 내려왔다. <span class="inf">[추론]</span> 시행 전 거래를 서두른 수요가 이 수준을 받쳤을 가능성이 있다.</li>
+<li><span class="inf">[추론]</span> 경기 증가폭이 가장 큰 것은 규제 대상 경기 12곳의 막차 수요이거나 비규제 지역으로 옮겨간 효과일 수 있다.</li></ul></div>
 <p class="note">일정 출처: <a href="https://www.dailian.co.kr/news/view/1559585/" target="_blank" rel="noopener">데일리안 10.15 대책 Q&amp;A</a> · <a href="https://www.mt.co.kr/estate/2025/10/15/2025101508131672772" target="_blank" rel="noopener">머니투데이</a> · <a href="https://www.wikitree.co.kr/articles/891698" target="_blank" rel="noopener">위키트리 2025년 10월 연휴</a></p>
 `, after: () => draw(document.getElementById('c-daily'), { bar: false, rows: D.daily.map((d) => ({ ...d, _x: d.d, _t: d.d + ' (' + d.dow + ')' })), label: '일별 문의', series: [{ k: 'zb', n: '직방', c: '--s1' }, { k: 'hg', n: '호갱노노', c: '--s2' }, { k: 't', n: '합계', c: '--ink', thin: 1 }] }) });
 
@@ -456,22 +474,24 @@ C.push({ id: 'basis', name: '기준', render: () => `
 <div><div class="eyebrow">12 / 12 · 기준과 주의</div><h2>집계 기준과 해석 시 주의</h2></div>
 ${table(['항목', '기준'], [
   ['기간', T('2026년 1월 1주차(25.12.29)~10월 5주차(26.11.01). 주차 = 월~일, 목요일이 속한 달 기준 월 주차. 전년 비교는 같은 순번 주차(2025년 1주차 = 24.12.30~25.01.05).')],
-  ['실거래', T('직방 RDS 국토부 실거래 적재본. 아파트, 해제 신고 제외. 신고주차 = DB 적재일 기준 [미검증: 공식 신고일과 며칠 차이 가능]. 각 신고주차에 계약일이 직전주 월요일 이후인 건만 집계. 임대차는 갱신 계약 제외, 월세 = 월 임대료가 있는 계약(반전세 포함). 전월세 신고 대상 계약만 원장에 있음.')],
-  ['문의 (클릭 로그)', T('사내 분석 큐브(직방·호갱노노) 문의 클릭 로그, 로그인 사용자, 앱+웹. 부록 B·C와 03장 상관은 PRO·LIGHT·BASIC이 받은 문의만, 03장 전년 비교·04장 몫 분해의 "문의 전체"는 기타 포함. 구독 3등급 기준으로는 응답원장보다 1~2% 많고, 기타 포함 전체는 8~9% 많음.')],
-  ['문의 (응답원장, 02·04장 중개사별 추적)', T('응답원장(채팅·콜백·전화) 기준. 받은 중개사 ID가 있어 중개사 단위 추적에 사용. 구독 등급은 9/20, 11/1 스냅샷.')],
-  ['등급', T('문의 시점 아파트 구독 등급, PRO > LIGHT > BASIC 하나만. 큐브 정의상 2025-01-15(BASIC 도입) 전 구독 문의는 모두 PRO로 분류.')],
-  ['매물 · 중개사', T('노출 매물 = 매주 일요일 노출 중인 아파트 매물(직방·호갱노노 공용 원장). 구독 중개사 = 일요일 기준 아파트 상품 구독 중개사(계정) 수.')],
+  ['실거래', T('직방 RDS 국토부 실거래 적재본. 아파트, 해제 신고 제외. 신고주차 = DB 적재일 기준 [미검증: 공식 신고일과 며칠 차이 가능]. 각 신고주차에 계약일이 직전주 월요일 이후인 건만 집계. 임대차는 갱신 계약 제외, 월세 = 월 임대료가 있는 계약(반전세 포함). 전월세 신고 대상 계약만 원장에 있다.')],
+  ['문의 (클릭 로그)', T('사내 분석 큐브(직방·호갱노노) 문의 클릭 로그, 로그인 사용자, 앱+웹. 부록 B·C와 부록 K 상관은 PRO·LIGHT·BASIC이 받은 문의만, 부록 K 전년 비교·부록 J 문의 분해의 "문의 전체"는 기타 포함. 상품 3등급 기준으로는 응답원장보다 1~2% 많고, 기타 포함 전체는 8~9% 많다.')],
+  ['문의 (응답원장, 부록 I·J 중개사별 추적)', T('응답원장(채팅·콜백·전화) 기준. 받은 중개사 ID가 있어 중개사 단위 추적에 사용. 상품 등급은 9/20, 11/1 스냅샷.')],
+  ['등급', T('문의 시점 아파트 상품 등급, PRO > LIGHT > BASIC 하나만. 큐브 정의상 2025-01-15(BASIC 도입) 전 상품 이용 중개사 문의는 모두 PRO로 분류.')],
+  ['매물 · 중개사', T('노출 매물 = 매주 일요일 노출 중인 아파트 매물(직방·호갱노노 공용 원장). 상품 이용 중개사 = 일요일 기준 아파트 상품 이용 중개사(계정) 수.')],
   ['시장지역', T('서울A/B/C, 경기A/B/C, 인천, 5대광역시+세종, 기타. 전남광주통합특별시의 옛 광주 5개 구는 5대광역시+세종.')],
-  ['명절 주차', T('2026: 신정(1월 1주), 설(2월 3주), 추석(9월 4주). 2025: 설(1월 5주), 어린이날(5월 2주), 대선(6월 1주), 추석·한글날(10월 2주) [미검증: 2025년 일부는 실거래 급감 주차로 대조]. 상관계수에서는 명절 주차와 그다음 주를 뺌.')],
-  ['LIGHT 무료 운영', T('10월부터 LIGHT 무료 운영, 앞으로도 계속 무료 = 사용자 제공 정보. 이 자료에서 직접 확인하지 않음.')], ['계속 PRO (02장)', T('지정한 스냅샷 시점에 모두 PRO였던 중개사(사이 기간 연속 유지는 미확인). 3월부터: 3/1, 8/2, 9/20, 11/1 모두 PRO인 1,943명. 8월부터: 8/2, 9/20, 11/1 모두 PRO인 2,877명. 응답원장(채팅·콜백·전화) 아파트 문의. 전화 원장은 2026년 2월부터 있어 3월부터 비교.')]], { title: '기준' })}
+  ['실질 아파트 단지', T('노출 중인 아파트 단지 31,274곳 중 아파트·주상복합·재건축·분양전환 유형, 임대 아님, 100세대 이상, 입주 전 분양 단계 아님인 21,348곳. 단지 등급(S1/S2) 필드가 단지 마스터에 없어 이 기준을 쓴다.')],
+  ['방문 유저', T('주(월~일) 동안 한 번 이상 방문한 고유 로그인 유저(앱+웹). 직방은 아파트 서비스 방문, 호갱노노는 서비스 전체 방문. 두 앱을 모두 쓴 유저는 양쪽에 센다.')],
+  ['명절 주차', T('2026: 신정(1월 1주), 설(2월 3주), 추석(9월 4주). 2025: 설(1월 5주), 어린이날(5월 2주), 대선(6월 1주), 추석·한글날(10월 2주) [미검증: 2025년 일부는 실거래 급감 주차로 대조]. 상관계수에서는 명절 주차와 그다음 주를 뺐다.')],
+  ['LIGHT 무료 운영', T('10월부터 LIGHT 무료 운영, 앞으로도 계속 무료 = 사용자 제공 정보. 이 자료에서 직접 확인하지 않는다.')], ['계속 PRO (부록 I)', T('지정한 스냅샷 시점에 모두 PRO였던 중개사(사이 기간 연속 유지는 미확인). 3월부터: 3/1, 8/2, 9/20, 11/1 모두 PRO인 1,943명. 8월부터: 8/2, 9/20, 11/1 모두 PRO인 2,877명. 응답원장(채팅·콜백·전화) 아파트 문의. 전화 원장은 2026년 2월부터 있어 3월부터 비교.')]], { title: '기준' })}
 <div class="key"><h3>해석 시 주의</h3><ul>
-<li>상관은 같이 움직였다는 뜻이고 인과를 뜻하지 않습니다.</li>
-<li>10월 비교 구간은 3주라 추석 직후 계절성이 섞였을 수 있습니다.</li>
-<li>2025년 PRO 문의 증가에는 제휴중개사에서 구독 중개사로 옮겨온 몫이 섞여 있습니다.</li>
-<li>같은 단지 비교(04장)는 비교 범위에 따라 결과가 달라져 방향 참고용입니다.</li>
-<li>05장, 06장 ①, 부록 F의 단지·매물 표는 운영지표 코호트 리포트(사용자 제공) 수치를 옮긴 것이고, 직접 재계산하지 않았습니다. 06장 ②③과 부록 G·H는 사내 분석 큐브로 직접 집계했습니다.</li>
+<li>상관은 같이 움직였다는 뜻이고 인과를 뜻하지 않는다.</li>
+<li>10월 비교 구간은 3주라 추석 직후 계절성이 섞였을 수 있다.</li>
+<li>2025년 PRO 문의 증가에는 제휴중개사에서 상품 이용 중개사로 옮겨온 문의가 섞여 있다.</li>
+<li>같은 단지 비교(부록 F-4)는 비교 범위에 따라 결과가 달라져 방향 참고용이다.</li>
+<li>03장, 부록 L·M ①, 부록 F의 단지·매물 표는 운영지표 코호트 리포트(사용자 제공) 수치를 옮긴 것이고, 직접 재계산하지 않았다. 04장의 사무소 구성 표, 부록 M ②, 부록 G·H는 사내 분석 큐브로 직접 집계했다. 02장 지역별 지표는 운영지표 코호트 리포트의 지역별 주간 표(사용자 제공)를 3주 단위로 다시 합산했다.</li>
 </ul></div>
-<!--H-->${table(['다음 확인', '내용'], [['우선 단지 재확인', T('우선 단지(부록 H)에 매물이 들어간 뒤 2~3주 후 문의가 실제로 느는지 같은 표로 재확인')], ['LIGHT 많은 지역', T('LIGHT 유입 4분위 시군구의 지역 전체 문의 증가(+14.8%)가 새 수요인지, 이웃 지역에서 옮겨 온 것인지 주차별 추적')], ['노출', T('등급별 노출량과 노출 대비 문의 전환율 (노출 로그에 중개사·등급 정보 필요)')], ['기간 연장', T('11월 이후 신규 LIGHT 유입이 계속될 때 계속 PRO인 중개사의 1명당 문의 추이')], ['전년 공급', T('노출 매물수·구독 중개사수의 전년 비교 (2차 범위)')]], { title: '다음에 볼 것' })}
+<!--H-->${table(['다음 확인', '내용'], [['우선 단지 재확인', T('우선 단지(부록 H)에 매물이 들어간 뒤 2~3주 후 문의가 실제로 느는지 같은 표로 재확인')], ['LIGHT 많은 지역', T('LIGHT 유입 4분위 시군구의 지역 전체 문의 증가(+14.8%)가 새 수요인지, 이웃 지역에서 옮겨 온 것인지 주차별 추적')], ['노출', T('등급별 노출량과 노출 대비 문의 전환율 (노출 로그에 중개사·등급 정보 필요)')], ['기간 연장', T('11월 이후 신규 LIGHT 유입이 계속될 때 계속 PRO인 중개사의 1명당 문의 추이')], ['전년 공급', T('노출 매물수·상품 이용 중개사 수의 전년 비교 (2차 범위)')]], { title: '다음에 볼 것' })}
 ` });
 
 
@@ -485,108 +505,236 @@ const sub = (s) => `<h3 style="margin-top:10px">${s}</h3>`;
 const lede = (s) => `<p class="lede">${s}</p>`;
 const para = (s) => `<div class="key"><p style="margin:0">${s}</p></div>`;
 const SRC = '<p class="note">시장 자료 출처: <a href="https://m.sedaily.com/article/20108563" target="_blank" rel="noopener">서울경제 10/31</a> · <a href="https://kbthink.com/realestate/insights/research/261015-3.html" target="_blank" rel="noopener">KB주택시장 리뷰 10월호</a> · <a href="https://www.biztribune.co.kr/news/articleView.html?idxno=361690" target="_blank" rel="noopener">비즈트리뷴 11/2</a></p>';
-const REP = '<p class="note">단지·매물 수치 출처: 사내 운영지표 코호트 리포트 "신라이트 매물은 어느 단지에 들어갔나"(11/2 작성, 사용자 제공).</p>';
-C.push({ ...OLD.summary, no: '01' });
-C.push({ id: 'trend', no: '02', name: '현상', render: () => { const M = D.mon, a = M[0], z = M[9], c3 = M[2];
-  return hdr('02 / 06', '현상', 'PRO 중개사 1명당 문의는 연초부터 전반적으로 낮아졌다')
-  + lede(`PRO 중개사는 1월 주 평균 ${fI(a.ag)}명에서 10월 ${fI(z.ag)}명으로 늘었는데 PRO 문의는 ${fI(a.iq)}건에서 ${fI(z.iq)}건으로 줄어, 1명당 주간 문의가 ${f2(a.pa)}건 → ${f2(z.pa)}건(${fP(ch(a.pa, z.pa))})이 됐습니다. 같은 중개사를 고정해 봐도(3/1·8/2·9/20·11/1 네 시점 모두 PRO인 ${fI(D.trackL[0].n)}명) 1명당 문의는 3월 ${f2(c3.ca)}건 → 10월 ${f2(z.ca)}건, 전체 문의 중 이 집단의 몫은 ${fS(c3.cs)} → ${fS(z.cs)}로 전반적으로 줄었습니다.`)
-  + table(['월', 'PRO 중개사', 'PRO 문의', 'PRO 1명당', '고정 집단 1명당', '고정 집단 몫'], M.map((r) => ({ cls: r.m === 4 || r.m === 10 ? 'hl' : '', cells: [r.m + '월', fI(r.ag) + '명', fI(r.iq) + '건', f2(r.pa) + '건', r.ca == null ? '—' : f2(r.ca) + '건', r.cs == null ? '—' : fS(r.cs)] })),
+const REP = '<p class="note">단지·매물 수치 출처: 사내 운영지표 코호트 리포트 "신라이트 매물은 어느 단지에 들어갔나"(11/2 작성, 11/4 사용자 제공본).</p>';
+const APPX = [];
+const RG = [["전국", 18.06, 22.47, 1786, 1053.8, 975.5, 20998, 20677, 24.5, 26.9], ["서울A", 0.6133, 0.7367, 55, 75.6, 72.2, 693, 842, 22.7, 24.7], ["서울B", 0.5967, 0.84, 90, 122.0, 102.6, 863, 966, 20.7, 23.3], ["서울C", 0.8433, 1.1233, 95, 114.4, 101.4, 2079, 1814, 21.2, 23.0], ["경기A", 0.0767, 0.0867, 9, 28.0, 23.2, 102, 137, 20.2, 25.6], ["경기B", 2.4233, 2.86, 158, 292.2, 270.0, 4989, 4236, 35.1, 37.0], ["경기C", 3.57, 3.89, 111, 123.5, 119.3, 4273, 4150, 34.4, 36.1], ["인천", 2.4467, 2.86, 123, 65.5, 64.5, 2099, 2092, 28.7, 30.8], ["5대광역시+세종", 4.4667, 6.5167, 709, 135.8, 127.0, 3199, 3566, 27.3, 31.0], ["기타", 3.0233, 3.5533, 436, 96.7, 95.5, 2701, 2874, 17.2, 19.1]];
+C.push({ id: 'summary', no: '01', name: '요약', render: () => hdr('01 / 04', '요약', '매물은 크게 늘었지만 전체 문의는 제자리였다.<br>관심은 높은데 직방 매물이 부족한 단지에 영업을 집중한다')
+  + lede('LIGHT 무료 운영 이후 직방 광고매물과 LIGHT 이용 중개사가 크게 늘었다.<br>이 공급 확대가 문의 성과로 이어졌는지 점검하고, 다음 영업 방향을 정리했다.<br>비교 기간은 LIGHT 오픈 전 3주(8/31~9/20)와 최근 3주(10/12~11/1)이다.')
+  + `<div class="key"><ul>
+<li><b>① 현황 진단</b> · 직방 광고매물은 24% 늘었고, LIGHT 이용 중개사는 주 190명에서 4,019명이 됐다.<br>단지 조회 유저는 7% 줄었지만 1만 명당 문의가 6% 늘어, 전체 문의는 주 8,600건대를 유지했다(02장).</li>
+<li><b>② 공급 위치 점검</b> · 매물이 없던 2,533곳에 매물이 생겨, 매물 있는 단지 비율이 24.5%에서 26.9%가 됐다.<br>매물이 적던 단지일수록 매물이 빠르게 늘었고(1~2건 단지 +105%), 신규 LIGHT가 들어간 1~9건 단지는 문의가 18% 안팎 늘었다(03장).</li>
+<li><b>③ 집중 영업 방향</b> · 관심이 높고 직방 매물이 부족하며, N사에 등록할 매물이 있는 단지에 본사 영업을 집중한다.<br>그 매물을 가진 사무소를 찾아 실제 매물 등록까지 연결하고, 가능하면 PRO 상품 판매를 우선한다(04장).</li>
+</ul></div>`
+  + table(['구분', '전 3주 (8/31~9/20)', '최근 3주 (10/12~11/1)', '변화'], [
+  [T('직방 광고매물 (하루 평균)'), '18.1만 건', '22.5만 건', P(0.244)],
+  [T('매물 있는 단지 비율'), '24.5%', '26.9%', '+2.4%p'],
+  [T('매물이 새로 생긴 단지 (9/28 → 11/1)'), '–', '2,533곳', '–'],
+  [T('방문 유저 · 직방 (주 평균)'), '34.6만', '34.1만', P(-0.0129)],
+  [T('방문 유저 · 호갱노노 (주 평균)'), '136.6만', '133.7만', P(-0.0208)],
+  [T('단지 조회 유저 (지역 합산)'), '1,054만', '976만', P(-0.074)],
+  [T('단지 조회 유저 1만 명당 문의 건수'), '19.9건', '21.2건', P(0.064)],
+  [T('문의 (지역 확인, 3주 합)'), '20,998건', '20,677건', P(-0.015)],
+  [T('전체 문의 (주 평균)'), '8,662건', '8,644건', P(-0.002)]
+], { title: '핵심 수치', note: '매물 = 직방 광고매물(우동매 등 제휴 제외)의 주별 하루 평균을 3주 평균한 값. 매물 있는 단지 비율 = 직방 광고매물이 노출된 단지 ÷ 전체 아파트 단지(주별 하루 평균의 3주 평균). 매물이 새로 생긴 단지 = 9/28 직방 광고매물 0건에서 11/1 1건 이상이 된 단지. 방문 유저 = 주(월~일) 동안 한 번 이상 방문한 고유 로그인 유저(앱+웹)의 3주 평균. 직방은 아파트 서비스 방문, 호갱노노는 서비스 전체 방문 기준(사내 분석 큐브). 단지 조회 유저·1만 명당 문의·지역 확인 문의는 02장과 같은 기준이며, 단지 조회 유저는 시군구별 고유 유저를 더한 값이라 증감으로 읽는다. 전체 문의는 지역 미상 문의까지 포함한 클릭 로그 기준. 상세 기준은 부록 E.' })
+  + '<p class="note" style="font-size:14px;color:var(--ink)">참고 · PRO가 받은 문의는 줄었다(전체 문의 중 비중 79.4% → 70.9%). 주차별로 모니터링하고 있으며, 전체 문의가 늘면 감소 폭은 완화될 것으로 예상한다 <span class="inf">[추론]</span>. 상세 추이는 부록 I·J에 있다.</p>' });
+
+C.push({ id: 'diag', no: '02', name: '현황 진단', render: () => { const f2m = (v) => v.toFixed(2) + '만', ch2 = (a, b) => b / a - 1;
+  const rows = RG.map((r, i) => ({ cls: i === 0 ? 'hl' : '', cells: [r[0], P(ch2(r[1], r[2])), r[8].toFixed(1) + '% → ' + r[9].toFixed(1) + '%', '+' + (r[9] - r[8]).toFixed(1) + '%p', fI(r[3]), P(ch2(r[4], r[5])), (r[6] / r[4]).toFixed(1) + ' → ' + (r[7] / r[5]).toFixed(1), P(ch2(r[6] / r[4], r[7] / r[5])), fI(r[6]) + ' → ' + fI(r[7]), P(ch2(r[6], r[7]))] }));
+  return hdr('02 / 04', '현황 진단', '매물은 모든 지역에서 늘었지만, 단지 조회 유저는 줄었고 전체 문의는 제자리였다')
+  + lede('LIGHT 오픈 전 3주(8/31~9/20)와 최근 3주(10/12~11/1)를 같은 지역, 같은 기준으로 비교했다. 직방 광고매물은 모든 지역에서 늘었고(전국 +24%), 매물이 있는 단지 비율도 24.5%에서 26.9%로 2.4%p 넓어졌다. 단지 조회 유저는 모든 지역에서 줄었고(전국 −7%), 단지 조회 유저 1만 명당 문의 건수는 지역마다 다르게 움직였다. 지역 문의 합계는 1.5% 줄었다.')
+  + table(['지역', '매물 증감', '커버리지', '증감', '신규 LIGHT<br>들어간<br>빈 단지', '단지 조회<br>유저', '단지 조회 유저 1만 명당<br>문의 건수', '증감', '문의<br>(3주 합)', '증감'], rows, { title: '지역별 공급·조회·문의 (전 3주 → 최근 3주)', note: '매물 증감 = 직방 광고매물(우동매 등 제휴 제외)의 주별 하루 평균 노출 매물을 3주 평균해 비교(전국 18.1만 → 22.5만 건). 커버리지 = 매물 있는 단지 비율. 직방 광고매물이 노출된 단지 ÷ 지역 전체 아파트 단지(직방 단지 마스터, 분양·미분류 포함, 분모는 현재 시점 고정)를 주별 하루 평균으로 구해 3주 평균한 값. 신규 LIGHT가 들어간 빈 단지 = 9/28 직방 광고매물 0건이었고 11/1 신규 LIGHT 매물이 있는 단지(스냅샷 비교, 전국 1,786곳). 신규 LIGHT 외 매물까지 포함해 매물이 새로 생긴 단지는 전국 2,533곳(요약·03장)이며, 이 값의 지역별 집계는 아직 없다. 단지 조회 유저 = 직방+호갱노노 아파트 로그인 단지 조회 유저의 증감률. 단지 조회 유저는 주별·시군구별 고유 유저로 센 뒤 3주 동안 더한 값(중복 포함이라 증감으로만 읽음). 플랫폼 전체 고유 유저 기준으로는 −5.3%다(부록 K). 단지 조회 유저 1만 명당 문의 건수 = 문의 건수(3주 합) ÷ 단지 조회 유저(3주 합) × 10,000. 문의 = 직방+호갱노노 아파트 문의 중 단지 지역을 알 수 있는 문의(전체의 약 81%). 지역 미상까지 포함한 전체 문의는 −0.2%. 경기A는 매물이 수백 건 수준이라 증감률 변동이 크다. 출처: 사내 운영지표 코호트 리포트 지역별 주간 표(11/4 사용자 제공본)를 3주 단위로 다시 합산. 지역 구분은 부록 P.' }); } });
+
+C.push({ id: 'position', no: '03', name: '공급 위치 점검', render: () => { const c = parts(body('coverage'));
+  return hdr('03 / 04', '공급 위치 점검', '매물이 적던 단지일수록 매물이 빠르게 늘었고, 신규 LIGHT가 들어간 1~9건 단지는 문의도 늘었다')
+  + lede('9/28부터 11/1까지 직방 광고매물은 6.7만 건(+36.5%) 늘었고, 대부분이 신규 LIGHT 매물(6.3만 건)이었다. LIGHT 오픈 전날과 마지막 날의 하루 값 비교라, 02장의 3주 평균 비교(+24%)보다 크게 나온다. 매물이 없던 2,533곳에 매물이 생겼고, 매물이 적던 단지일수록 증가율이 높았다(1~2건 단지 +105%, 30건 이상 +23%). 건수로는 세대수가 큰 30건 이상 단지(평균 1,215세대)에도 신규 LIGHT 매물의 45%가 들어갔다.')
+  + c[0].replace(/<p class="lede">[\s\S]*?<\/p>/, '')
+  + table(['단지 매물 (3주 하루 평균)', '전 3주 (8/31~9/20)', '최근 3주 (10/12~11/1)', '변화'], [
+  ['1~2건', '35.9', '28.6', P(-0.204)], ['3~9건', '22.2', '18.7', P(-0.157)], ['10~29건', '14.6', '11.5', P(-0.213)], ['30~99건', '8.7', '7.4', P(-0.147)], ['100건 이상', '5.5', '4.9', P(-0.121)], { cls: 'sum', cells: ['30건 이상 묶음', '6.9', '5.9', P(-0.142)] }], { title: '② 매물 100건당 문의: 모든 구간에서 내려갔고, 구간 간 차이는 신규 LIGHT 전에도 있었다', note: '값 = 3주 합계 문의 ÷ 같은 3주의 하루 평균 직방 광고매물 × 100. 구간도 3주 하루 평균 매물로 나눈다. 하루 평균 매물이 18.1만 → 22.5만 건으로 늘어난 동안 문의는 제자리라 모든 구간이 내려갔다. 1~2건 단지 대비 30건 이상 단지는 0.19배 → 0.21배로, 매물이 쌓일수록 매물 1건이 받는 문의가 적은 모양은 신규 LIGHT 전부터 같았다.' })
+  + `<div class="key"><h3>확인한 것</h3><ul>
+<li>신규 LIGHT가 들어간 단지끼리 보면, 매물이 1~2건·3~9건이던 단지는 문의가 18.6%·17.6% 늘었다. 10~29건이던 단지는 4.5% 줄었고, 30건 이상이던 단지는 1.2% 늘었다.</li>
+<li>같은 집을 여러 사무소가 올리면 그 집이 받는 문의는 그대로였다. 직방에 없던 집을 올린 LIGHT 매물은 100건당 3.7건, 이미 있던 집에 중복 등록한 LIGHT 매물은 1.0건의 문의를 받았다(매물 단위 문의, 부록 F-5).</li>
+<li>같은 기간 신규 LIGHT 매물이 안 들어간 단지는 문의가 10.7% 줄었다. 들어간 단지(+7.3%)와의 차이가 매물 효과인지는 아래와 같이 확인하지 못했다(부록 L ①).</li>
+</ul><h3 style="margin-top:12px">확인하지 못한 것</h3><ul>
+<li>매물이 많던 단지에 매물이 더 들어가서 문의 전환이 떨어졌는지는 확인하지 못했다.</li>
+<li>신규 LIGHT 매물이 들어간 단지의 문의 증가가 매물 효과인지, 중개사가 문의가 늘던 단지를 골라 올린 결과인지 구분하지 못했다.</li>
+<li>단지 조회 유저가 줄어든 원인은 이번 자료로 확인하지 않았다.</li>
+</ul></div>`
+  + para('문의 변화는 찾아온 유저 수(단지 조회 유저)와 단지 조회 유저 1만 명당 문의 건수로 나눠 볼 수 있다. 단지 조회 유저는 모든 지역에서 줄었다. 공급 위치가 영향을 줄 수 있는 쪽은 1만 명당 문의인데, 이 값은 지역에 따라 오르기도 하고 내리기도 했다(02장). 그래서 공급 위치만으로 문의 성과를 설명할 수는 없다.')
+  + REP; } });
+
+C.push({ id: 'strategy', no: '04', name: '집중 영업 방향', render: () => hdr('04 / 04', '집중 영업 방향', '관심은 높은데 직방 매물이 부족하고, 외부에 등록할 매물이 있는 단지에 본사 영업을 집중한다')
+  + lede('매물을 늘리는 것만큼 어디에 늘리느냐가 중요하다. 신규 LIGHT 매물이 들어간 빈 단지는 문의가 187건에서 666건으로, 1~9건 단지는 18% 안팎 늘었다. 직방에 없던 집을 올린 매물은 중복 등록 매물보다 문의를 3배 넘게 받았다(100건당 3.7건 대 1.0건, 03장). 그래서 다음 영업은 아래 세 조건을 갖춘 단지에 집중한다.')
+  + table(['조건', '의미', '확인 데이터'], [
+  [T('① 유저 관심이 높다'), T('최근 3주 단지 조회 유저와 관심 단지 등록이 많은 단지'), T('직방+호갱노노 조회·관심')],
+  [T('② 직방 공급이 부족하다'), T('직방 매물이 없거나 단지 규모에 비해 적은 단지'), T('직방 노출 매물')],
+  [T('③ 실제로 등록할 매물이 있다'), T('외부(N사)에 그 단지 매물을 올린 사무소가 있는 단지'), T('N사 매물의 직방 단지 매핑')]], { title: '집중 영업 대상 단지의 조건' })
+  + para('회의 후 기준으로 고른 후보 2,000곳(직방 매물 0~9건이면서 단지 조회 유저·관심 점수순, 부록 Q)을 이 조건으로 다시 보면, 1,831곳은 N사 매물이 확인돼 ③도 충족한다(0~2건 단지 1,179곳 중 1,058곳, 3~9건 단지 821곳 중 773곳). 다만 그 매물을 올린 중개사의 85%는 직방 아파트 상품을 쓰지 않고, LIGHT·BASIC 이용은 9%, PRO 이용은 6%다. 3~9건 단지는 PRO 이용 중개사가 있는 곳이 62%(512곳)로 0~2건 단지(23%)보다 훨씬 많다. 나머지 169곳은 N사 매핑 매물이 0건이다. 이 중 155곳은 최근 12개월 N사 매물 이력이 있어(152곳은 최근 3개월에도 있음), 매물이 없는 게 아니라 단지 매핑이 빠졌을 가능성이 크다 <span class="inf">[추론]</span>. 이력도 없는 단지는 14곳이다.')
+  + table(['후보 단지에 N사 매물을 올린 사무소', '0~2건 단지', '3~9건 단지', '합계'], [['PRO 이용 중개사가 1명 이상', '276', '512', '788'], ['PRO 없이 LIGHT·BASIC 이용 중개사만', '301', '211', '512'], ['직방 상품 미이용 중개사만', '481', '50', '531'], ['N사 매물 매핑 없음', '121', '48', '169'], { cls: 'sum', cells: ['합계', '1,179', '821', '2,000'] }], { title: '후보 단지 2,000곳에 N사 매물을 올린 사무소 구성 (11/1 직방 매물 구간별)', note: '11/1 N사 매물을 직방 단지에 매핑한 기준. PRO 이용 중개사가 있는 788곳 중 521곳은 그 중개사가 1명이다. 중개사 비중은 단지별로 센 중개사 20,187명(한 중개사가 여러 단지에 올리면 단지마다 센다) 기준이며, 직방 상품 미이용에는 비회원과 가입 후 상품을 쓰지 않는 회원이 섞여 있다. 매핑 없음 169곳을 사내 활동 데이터(11/1)로 점검한 결과, 155곳(0~2건 112곳, 3~9건 43곳)은 최근 12개월 N사 매물 이력이 있는데 매핑 매물이 0건이라 매핑 누락으로 추정되고(부록 Q 비고 ‘매핑 누락 의심’), 14곳은 이력도 없다. 한강맨션은 N사에서 매매 매물 20건이 확인됐다(11/4 직접 확인). 확정은 N사 직접 검색이 필요하다. 전체로 넓히면 500세대 이상·단지 조회 유저 1,000명 이상 단지 3,874곳 중 566곳이 N사 매핑 매물 0건이고, 그중 186곳은 N사 이력이 있어 매핑 확인이 필요하다. 여기서 PRO 이용은 어느 단지든 PRO를 쓰는 중개사를 말하며, 부록 Q의 PRO 입점(그 단지 PRO 상품을 구입한 중개사가 있음)과 다르다. PRO 입점 단지는 0~2건 94곳, 3~9건 212곳이다.' })
+  + `<div class="key"><h3>실행 원칙</h3><ul>
+<li><b>사무소 찾기</b>: 단지별로 외부에 매물을 많이 올린 사무소를 찾아 명단을 만든다. 영입에서 끝내지 않고, 그 단지 매물이 직방에 실제로 등록됐는지까지 확인한다. 사무소 명단은 추후 조회한다.</li>
+<li><b>PRO 우선 판매</b>: PRO가 받는 문의 비중이 줄고 있는 점도 고려해, 공급이 부족한 단지를 확보할 때 가능하면 해당 단지의 PRO 상품 판매를 우선한다. 어려우면 LIGHT로 매물 등록을 확보한다.</li>
+<li><b>점검</b>: 2~3주 뒤 초기 점검한다. 확보한 단지 수와 등록 매물 수는 PRO·LIGHT로 나눠 보고, 전체 문의와 단지 조회 유저 1만 명당 문의 건수는 비교 단지와 함께 본다.</li>
+<li><b>후보 선정</b>: 회의 의견에 따라 대상을 직방 매물 0~9건으로 넓히고, 점수에서 문의를 뺐다. 단지 조회 유저·관심 점수순으로 2,000곳(0~2건 1,179곳, 3~9건 821곳)을 골랐다. 실질 아파트 단지 21,348곳의 9.4%다. 목록은 부록 Q, 기준별 비교는 부록 M·N·O, 이전 목록(0~2건, 문의 포함 점수)은 부록 H에 있다.</li>
+</ul></div>`
+  + '<p class="note">출처: 사무소 구성 표는 사내 분석 큐브(11/1 N사 매물 매핑, 10/12~11/1 조회·관심)로 직접 집계.</p>' });
+
+APPX.push({ id: 'trend', no: 'I', name: '부록 PRO 1명당 추이', render: () => { const M = D.mon, a = M[0], z = M[9], c3 = M[2];
+  return hdr('부록 I', 'PRO 1명당 문의 추이', 'PRO 중개사 1명당 문의는 연초부터 전반적으로 낮아졌다')
+  + lede(`PRO 중개사는 1월 주 평균 ${fI(a.ag)}명에서 10월 ${fI(z.ag)}명으로 늘었지만, PRO 문의는 ${fI(a.iq)}건에서 ${fI(z.iq)}건으로 줄었다. 그래서 1명당 주간 문의는 ${f2(a.pa)}건에서 ${f2(z.pa)}건으로 낮아졌다(${fP(ch(a.pa, z.pa))}). 3/1·8/2·9/20·11/1 네 시점 모두 PRO였던 ${fI(D.trackL[0].n)}명만 따로 봐도, 1명당 주간 문의는 3월 ${f2(c3.ca)}건에서 10월 ${f2(z.ca)}건으로 줄었다. 전체 문의 중 이 집단이 받은 비중도 ${fS(c3.cs)}에서 ${fS(z.cs)}로 내려갔다.`)
+  + table(['월', 'PRO 중개사', 'PRO 문의', 'PRO 1명당', '고정 집단 1명당', '고정 집단 비중'], M.map((r) => ({ cls: r.m === 4 || r.m === 10 ? 'hl' : '', cells: [r.m + '월', fI(r.ag) + '명', fI(r.iq) + '건', f2(r.pa) + '건', r.ca == null ? '—' : f2(r.ca) + '건', r.cs == null ? '—' : fS(r.cs)] })),
     { title: '월별 주 평균 (명절 주차 제외)', note: 'PRO 중개사·PRO 문의·PRO 1명당 = 클릭 로그, 전체 PRO 기준. 고정 집단 = 응답원장 기준(전화 원장이 2월부터라 3월부터). 노란 행 = 하락 폭이 큰 달(4월, 10월).' })
   + parts(body('pro'))[0]; }, after: OLD.pro.after });
-C.push({ id: 'market', no: '03', name: '전체 문의 정체', render: () => { const c = parts(body('cause')); const k = parts(body('corr')); const p = parts(body('pro'));
-  return hdr('03 / 06', '전체 문의 정체 (질문 ①)', '전체 문의 정체는 거래량만으로 설명되지 않는다')
-  + lede('9월 초 → 10월 하순 문의한 유저와 전체 문의는 그대로였고, 실거래(신고주 코호트)는 늘었지만 조회 유저는 줄었습니다. 올해 주차별로도 거래량과 문의의 연관은 약했습니다(상관 0.15~0.53, 부록 F).')
+APPX.push({ id: 'market', no: 'K', name: '부록 거래량·시장', render: () => { const c = parts(body('cause')); const k = parts(body('corr')); const p = parts(body('pro'));
+  return hdr('부록 K', '거래량·시장 참고', '전체 문의 정체는 거래량만으로 설명되지 않는다')
+  + lede('9월 초와 10월 하순을 비교하면 문의한 유저와 전체 문의는 그대로였다. 같은 기간 매매 실거래(신고 주 기준)는 늘었고, 단지 조회 유저는 줄었다. 올해 주차별로 봐도 거래량과 문의는 약하거나 중간 정도로만 함께 움직였다(상관 0.15~0.53, 부록 F). 전년 대비 증감률끼리는 상관이 높게 나온다(0.67~0.79). 다만 두 값 모두 연초에 높고 연말에 낮은 추세를 따른 영향이 커서, 7월 이후만 보면 매매와 PRO 문의의 상관은 0.56이다.')
   + c[1]
-  + para('조회 유저가 줄었고(9월 초 대비 −5.3%) 외부 지표도 매수심리 하락을 가리켜, 시장 냉각이 수요 정체의 배경일 가능성은 있습니다. 다만 그 영향의 크기는 확인되지 않았습니다. 10월 3~5주 실거래 증가에는 추석 전에 집을 본 거래가 추석 뒤 몰려 신고된 영향이 섞였을 수 있습니다. 앞으로 1~2주 신고 건수가 크게 떨어지지 않으면 시장 위축으로 보기는 어려워, 주차별로 계속 추적합니다. 전년 대비로는 10월 매매가 −7.1%(10월 5주차 −21.0%)지만, 작년 10월은 10·15 대책 전후 수요로 기준이 높았습니다(부록 D). 상관계수와 전년 비교 상세는 부록 F에 있습니다.') + SRC; } });
-C.push({ id: 'shift', no: '04', name: 'PRO 비중 변화', render: () => { const c = parts(body('cause')); const l = parts(body('light'));
-  return hdr('04 / 06', 'PRO 비중 변화 (질문 ②)', 'PRO 감소는 비중 감소로 나타났고, 등급 이동보다 계속 PRO인 중개사의 문의 감소가 컸다')
-  + lede('전체 문의는 그대로인데 PRO 비중이 79.4% → 70.9%로 줄었고, 늘어난 몫은 대부분 LIGHT가 받았습니다. 같은 중개사를 9/20 → 11/1로 추적하면, PRO 감소 중 계속 PRO인 중개사의 문의 감소가 PRO를 떠난 중개사의 몫보다 컸습니다.')
+  + para('단지 조회 유저가 줄었고(9월 초 대비 −5.3%) 외부 지표도 매수심리 하락을 가리켜, 시장 냉각이 수요 정체의 배경일 가능성은 있다. 다만 그 영향의 크기는 확인되지 않았다. 10월 3~5주 실거래 증가에는 추석 전에 집을 본 거래가 추석 뒤 몰려 신고된 영향이 섞였을 수 있다. 앞으로 1~2주 신고 건수가 크게 떨어지지 않으면 시장 위축으로 보기는 어려워, 주차별로 계속 추적한다. 전년 대비로는 10월 매매가 −7.1%(10월 5주차 −21.0%)지만, 작년 10월은 10·15 대책 전후 수요로 기준이 높았다(부록 D). 상관계수와 전년 비교 상세는 부록 F에 있다.') + SRC; } });
+APPX.push({ id: 'shift', no: 'J', name: '부록 PRO 문의 분해', render: () => { const c = parts(body('cause')); const l = parts(body('light'));
+  return hdr('부록 J', 'PRO 문의 분해', '전체 문의는 그대로인데 PRO가 받은 문의는 줄었고, 등급 이탈보다 PRO를 유지한 중개사의 문의 감소가 더 컸다')
+  + lede('전체 문의는 그대로인데 PRO가 받은 문의 비중은 79.4%에서 70.9%로 줄었고, LIGHT가 받은 문의는 주 164건에서 1,269건으로 늘었다. 9월과 10월에 같은 중개사를 추적해 보니(9/20·11/1 상품 이용 기준), PRO 문의 감소(주 879건)에는 PRO를 그만둔 중개사(−402건)보다 PRO를 유지한 중개사의 문의 감소(−643건)가 더 크게 기여했다. 새로 PRO가 된 중개사는 166건을 받았다.')
   + c[2] + l[1].replace('③ PRO 문의 감소 분해', '② PRO 문의 감소 분해')
-  + para(`LIGHT 문의의 ${fS(newLight.t2 / lightAll2)}는 9월에 구독하지 않다가 새로 LIGHT를 시작한 ${fI(newLight.n)}명이 받았습니다. 계속 BASIC·LIGHT인 중개사도 PRO와 비슷한 비율로 줄어, 같은 수요를 더 많은 중개사가 나눠 받는 모습입니다. 중개사별 추적은 응답원장 기준이라 위 클릭 로그 수치와 다릅니다(부록 E).`); } });
-C.push({ id: 'coverage', no: '05', name: '매물 커버리지', render: () => { const c = parts(body('coverage'));
-  return hdr('05 / 06', '매물 커버리지 (질문 ②)', '신규 LIGHT 매물은 매물이 적던 단지일수록 더 크게 늘었고, 수도권에서는 LIGHT 비율이 높은 지역의 PRO 문의 감소폭이 컸다')
-  + lede('9/28 → 11/1 늘어난 노출 매물(+6.4만 건)은 거의 모두 신규 LIGHT 매물이었습니다. 건수는 매물 30건 이상 단지가 46%로 가장 많았지만, 증가율은 1~2건 단지 +68.6%, 30건 이상 단지 +21.8%로 매물이 적던 단지일수록 컸고, 30건 이상 단지의 매물 비중은 66.3% → 61.5%로 낮아져 쏠림은 완화됐습니다. 단지 문의 총량은 그대로였습니다.')
-  + c[0].replace(/<p class="lede">[\s\S]*?<\/p>/, '') + c[2].replace('④ 수도권에서는', '② 수도권에서는')
-  + para('매물이 30건 넘던 단지는 매물이 22% 늘었지만 단지 문의는 −2.3%였습니다. 수도권은 LIGHT 비율 10% 미만 시군구보다 그 이상인 시군구의 PRO 문의 감소폭이 컸고, 지역 전체 문의 변화를 고려한 시군구 분석에서도 음의 연관성이 나왔습니다(부록 F). 지방은 PRO 문의가 거의 그대로였습니다. 지역 특성이 섞여 있어 인과관계는 확정하지 못했습니다.') + para('<span class="inf">[추론]</span> 지방은 대행사 위주 영업으로 매물이 적던 단지에 LIGHT가 들어갔고, 수도권은 PRO 매물이 많던 기존 단지에 LIGHT가 겹쳤을 가능성이 있습니다. 지역별 신규 LIGHT의 단지 구간 분포로 사후 확인합니다.') + REP; } });
-C.push({ id: 'action', no: '06', name: '우선 단지 매물 확보', render: () => { const c = parts(body('coverage'));
-  return hdr('06 / 06', '우선 단지 매물 확보 (제안)', '유저 관심이 높은데 매물이 부족한 단지에서 PRO 우선으로 매물을 확보한다')
-  + lede('매물 0~2건 단지 중 유저 관심(조회·관심·문의)이 높은 단지에서, 해당 단지를 주로 다루는 사무소에 PRO를 먼저 제안하고 어려우면 LIGHT로라도 매물을 확보합니다. 문의 건수만으로 고르면 오래되고 관심이 낮은 단지, 매물이 적은 소규모 사무소 위주가 되어 사무소 1곳을 영입해도 늘어나는 문의가 작습니다. 그래서 사용자들의 조회·관심을 반영했습니다.')
+  + para(`10월 LIGHT 문의의 ${fS(newLight.t2 / lightAll2)}는 9월에 상품을 쓰지 않다가 새로 LIGHT를 시작한 ${fI(newLight.n)}명이 받았다. BASIC이나 LIGHT를 계속 쓴 중개사도 받은 문의가 PRO와 비슷하게 8~13% 줄었다. 전체 문의는 그대로인 채 문의를 받는 중개사가 늘어난 모습이다. 중개사별 추적은 응답원장 기준이라 위 클릭 로그 수치와 다르다(부록 E).`); } });
+APPX.push({ id: 'coverage', no: 'L', name: '부록 공급 위치 상세', render: () => { const c = parts(body('coverage'));
+  return hdr('부록 L', '공급 위치 상세', '매물이 적던 단지일수록 매물 증가율이 높았고, 수도권에서는 LIGHT 매물이 많이 겹친 지역의 PRO 문의가 더 줄었다')
+  + lede('03장 공급 위치 점검을 보완하는 상세 자료다. 매물 구간별 신규 LIGHT 유입 표는 03장 ①에 있다. 30건 이상 단지가 차지하는 매물 비중은 9/28 69.5%에서 11/1 62.6%로 낮아졌다.')
+  + table(['9/28 단지 매물', '들어간 단지', '문의 전 → 최근', '변화', '안 들어간 단지', '문의 전 → 최근', '변화'], [['0건 (빈 단지)', '1,786', '187 → 666', '–', '747', '205 → 338', '–'], ['1~2건', '1,308', '661 → 784', P(0.186), '3,623', '1,591 → 1,361', P(-0.145)], ['3~9건', '1,515', '1,661 → 1,953', P(0.176), '2,152', '2,278 → 1,954', P(-0.142)], ['10~29건', '1,087', '2,605 → 2,489', P(-0.045), '779', '1,908 → 1,748', P(-0.084)], ['30건 이상', '1,105', '6,597 → 6,675', P(0.012), '343', '2,043 → 1,767', P(-0.135)], { cls: 'hl', cells: ['합계', '6,801', '11,711 → 12,567', P(0.073), '7,644', '8,025 → 7,168', P(-0.107)] }], { title: '① 같은 매물 구간 안에서, 신규 LIGHT 매물이 들어간 단지는 문의가 늘고 안 들어간 단지는 줄었다', note: '들어간 단지에서 늘어난 문의(+856건)와 안 들어간 단지에서 줄어든 문의(−857건)가 비슷해, 전체는 제자리다. 해석은 두 가지가 가능하다. 신규 LIGHT 매물이 문의를 끌어왔을 수도 있고, 중개사가 문의가 늘던 단지를 골라 올렸거나 사용자가 매물이 있는 단지로 옮겨 갔을 수도 있다. 지금 자료로는 둘을 구분하지 못한다.' })
+  + c[2].replace('④ 수도권에서는', '② 수도권에서는')
+  + para('구간 전체로 보면 매물이 30건 넘던 단지는 매물이 23% 늘었는데도 단지 문의가 2.3% 줄었다. 지역별로는 신규 LIGHT 매물의 50%가 5대광역시+세종에 들어갔다. 이 지역은 매물 100건당 문의가 낮은 편이다(30건 이상 단지 4.0건, 1~2건 단지 12.4건). 반대로 경기B·경기C·서울C는 1~2건 단지의 매물 100건당 문의가 41~53건으로 높다.')
+  + table(['지역', '매물 1~2건 단지의<br>매물 100건당 문의', '매물 30건 이상 단지의<br>매물 100건당 문의', '매물 0~2건이면서<br>문의가 있는 단지', '그중 문의<br>3건 이상'], [
+  ['서울A', '33.4', '7.8', '75', '13'], ['서울B', '34.0', '6.7', '81', '15'], { cls: 'hl', cells: ['서울C', '43.6', '8.5', '152', '28'] },
+  ['경기A', '57.1', '2.4', '15', '4'], { cls: 'hl', cells: ['경기B', '52.6', '8.5', '293', '86'] }, { cls: 'hl', cells: ['경기C', '41.5', '7.3', '209', '59'] },
+  ['인천', '31.4', '5.5', '79', '20'], ['5대광역시+세종', '12.4', '4.0', '206', '27'], ['기타', '17.9', '5.3', '246', '42'],
+  { cls: 'sum', cells: ['전국', '28.3', '5.9', '1,356', '294'] }], { title: '③ 지역별: 매물이 적은 단지의 매물당 문의와, 문의는 있는데 매물이 0~2건인 단지', note: '매물 100건당 문의 = 최근 3주(10/12~11/1) 직방+호갱노노 문의 ÷ 같은 3주 하루 평균 직방 광고매물(제휴 제외) × 100. 매물 0~2건이면서 문의가 있는 단지 = 11/1 직방 광고매물 0~2건이고 최근 3주 문의가 1건 이상인 단지로, 위치를 알 수 없는 116곳을 더하면 전국 1,472곳이다. 부록 H의 우선 단지 518곳(관심도 기준)과는 다른 기준이다. 경기A는 매물이 수백 건 수준이라 값의 변동이 크다. 강조 행 = 이번 기간 문의가 줄어든 서울C·경기B·경기C.' })
+  + para('수도권에서는 LIGHT 매물 비율이 10% 이상인 시군구에서 PRO 문의가 더 줄었고, 지역 전체 문의 변화를 감안해도 같은 방향이었다. 신규 LIGHT 중개사가 기존 상품 이용 중개사 1명당 1명 늘 때, PRO를 유지한 중개사의 1명당 문의는 10.6%p 더 줄었다(표준오차 2.0%p, 부록 F-5). 지방은 PRO 문의가 거의 그대로였다. 지역 특성이 섞여 있어 인과관계는 확정하지 못했다.') + table(['지역', '신규 LIGHT 매물', '0~2건 단지에<br>들어간 비중', '10건 이상 단지에<br>들어간 비중', '1~9건 단지 문의<br>들어간 단지', '변화', '1~9건 단지 문의<br>안 들어간 단지', '변화'], [
+  ['서울A', '1,963', '14.1%', '73.9%', '58 → 112', P(0.9310), '145 → 179', P(0.2345)],
+  ['서울B', '2,495', '37.1%', '43.2%', '161 → 197', P(0.2236), '211 → 211', P(0.0000)],
+  ['서울C', '2,449', '24.4%', '48.4%', '329 → 303', P(-0.0790), '522 → 411', P(-0.2126)],
+  ['경기A', '70', '55.7%', '27.1%', '10 → 10', P(0.0000), '46 → 64', P(0.3913)],
+  { cls: 'hl', cells: ['경기B', '4,795', '16.9%', '63.5%', '530 → 517', P(-0.0245), '1,127 → 927', P(-0.1775)] },
+  { cls: 'hl', cells: ['경기C', '5,157', '13.8%', '70.6%', '228 → 290', P(0.2719), '721 → 634', P(-0.1207)] },
+  ['인천', '5,016', '38.3%', '42.5%', '133 → 195', P(0.4662), '262 → 193', P(-0.2634)],
+  ['5대광역시+세종', '30,202', '18.6%', '65.1%', '365 → 563', P(0.5425), '436 → 320', P(-0.2661)],
+  ['기타', '7,612', '30.2%', '49.8%', '325 → 416', P(0.2800), '582 → 510', P(-0.1237)],
+  { cls: 'sum', cells: ['전국', '59,759', '22.1%', '60.2%', '2,139 → 2,603', P(0.2169), '4,052 → 3,449', P(-0.1488)] }], { title: '④ 지역별: 신규 LIGHT 매물이 들어간 단지 구간과 매물이 적던 단지의 문의', note: '구간 = 9/28 단지 직방 광고매물 수. 신규 LIGHT = 9/28 아파트 상품 미이용 → 11/1 LIGHT 이용 중개사(4,422명)의 11/1 노출 매물로, 코호트 리포트 기준(4,677곳)과 달라 03장 ①과 값이 조금 다르다. 문의 = 직방+호갱노노 단지별 합, 8/31~9/20 → 10/12~11/1. 서울·경기A는 1~9건 단지 문의가 수십~수백 건이라 증감률 변동이 크다. 강조 행 = 경기B·경기C. 사내 분석 큐브로 직접 집계.' })
+  + para('경기B·경기C는 신규 LIGHT 매물의 64~71%가 매물 10건 이상 단지에 들어갔고, 0~2건 단지에 들어간 비중은 14~17%로 전국(22%)보다 낮았다. 5대광역시+세종에 신규 LIGHT 매물이 몰린 것은 신규 입주 물량 때문이라는 근거가 없었다. 이 지역 신규 LIGHT 매물 중 입주예정·분양 단지 비중은 8.5%로, 9/28 기존 매물(9.4%)과 비슷했다. 신규 LIGHT 매물이 가장 많은 곳은 부산(5대광역시+세종 몫의 66%)이다.') + REP; } });
+APPX.push({ id: 'action', no: 'M', name: '부록 후보 선정 비교', render: () => { const c = parts(body('coverage'));
+  return hdr('부록 M', '우선 단지 후보와 선정 기준 비교', '후보 선정 기준 세 가지를 비교했고, 아직 확정하지 않았다')
+  + lede('04장 집중 영업 방향에 맞는 후보 단지를 고르는 기준으로 세 가지를 검토했다. 관심도 기준(현재안)은 직방 매물이 0~2건이면서 유저 관심(조회·관심·문의)이 높은 단지를 고른 안이다. 문의 건수만으로 고르면 오래되고 관심이 낮은 단지, 매물이 적은 소규모 사무소 위주가 되어 사무소 1곳을 영입해도 늘어나는 문의가 작다. 그래서 사용자들의 조회·관심을 반영했다. 이 부록의 현재안은 11/4 회의 전 기준(부록 H)이고, 회의 후 기준(0~9건, 문의 제외)으로 고른 목록은 부록 Q에 있다.')
   + c[4]
-  + para('매물을 더했을 때 문의가 는 근거는 빈 단지(문의 209 → 669건, +220%)와 직방에 없던 집을 채운 신규 LIGHT 매물(매물 100건당 3.7건, 이미 있던 집에 겹친 매물 1.0건)입니다. 1~2건 단지는 매물이 +68.6% 늘었지만 문의는 +4.5%에 그쳐, 매물이 얇은 단지 전반의 효과는 아직 확인되지 않았습니다(05장).')
-  + table(['H 단지에서 네이버에 매물을 올린 사무소', '단지'], [['PRO 이용 중개사가 1명 이상', '102'], ['PRO 없이 LIGHT·BASIC 이용 중개사만', '120'], ['직방 상품 미이용 중개사만', '231'], ['네이버 매물 없음', '65'], { cls: 'sum', cells: ['합계', '518'] }], { title: '③ H 단지 대부분에는 매물을 올리는 PRO 사무소가 없다', note: '11/1 네이버 매물의 직방 단지 매핑 기준. PRO 단지 102곳 중 81곳은 PRO 중개사가 1명. H 단지 네이버 매물 13,939건 중 PRO 중개사 매물은 355건(2.5%). 네이버에 매물이 없다고 그 단지를 다루지 않는다는 뜻은 아닙니다. 여기서 PRO 이용 = 어느 단지든 PRO를 쓰는 중개사로, ② 표의 PRO 입점(그 단지를 PRO로 구독한 중개사가 있음)과 다릅니다.' })
-  + `<div class="key"><h3>실행 방향</h3><ul><li><b>① PRO 우선</b>: 해당 단지를 주 단지로 다루는 사무소(그 단지에 매물을 많이 올린 사무소)에 그 단지 PRO 구독을 먼저 제안합니다. LIGHT·BASIC 중개사만 있는 120곳은 PRO 전환 대상이고, PRO 중개사가 있는 102곳은 그 사무소에 해당 단지 매물의 직방 등록을 요청합니다(그 단지를 구독하지 않은 PRO 중개사의 매물이 상품상 PRO 노출을 받는지는 확인 필요 <span class="inf">[미검증]</span>). 사무소 명단은 추후 조회합니다.</li>
-<li><b>② 안 되면 LIGHT로라도 확보</b>: PRO가 어려운 사무소는 LIGHT로 매물 등록을 확보합니다. 이 경우 새 문의는 LIGHT가 받아 PRO 비중은 내려갈 수 있지만, 전체 문의는 늘어납니다. 기존 PRO 사무소의 전반적인 매물 확대(이탈 방지 목적)는 별도로 봅니다.</li>
-<li><b>다음 단계</b>: 세대수·연식·입주 시점·지역과 조회·문의의 관계로 단지별 필요 매물 수를 정하고, 그보다 매물이 부족한 단지로 대상을 넓힙니다(올림픽파크포레온의 10건과 소규모 단지의 10건은 의미가 다름).</li>
-<li><b>한계</b>: 이미 매물이 많은 단지에서 LIGHT와 나뉜 PRO 문의를 되돌리는 방안은 아닙니다. 등급별 노출 조정 같은 방안은 노출 로그에 등급 정보가 없어 이 자료로 근거를 내지 못했습니다.</li>
-<li><b>확인 지표</b>: 공급이 늘어난 H 단지 수, H 단지의 전체 문의와 PRO 문의 비중, PRO로 확보한 단지 수와 LIGHT로 확보한 단지 수. 비교 단지와 함께 2~3주 뒤 초기 점검합니다.</li></ul></div>`
-  + '<p class="note">출처: ①과 05장 수치는 사내 운영지표 코호트 리포트 "신라이트 매물은 어느 단지에 들어갔나"(11/2 작성, 사용자 제공). ②③과 부록 H는 사내 분석 큐브(직방·호갱노노 조회·관심·문의 10/12~11/1, 11/1 매물, 네이버 매물 매핑)로 직접 집계.</p>'; } });
-C.push({ id: 'opt2', no: '06-1', name: '대안: 필요 매물 대비 부족', render: () => hdr('06-1', '선정 기준 대안: 필요 매물 대비 부족', '세대수·연식·입주 시점·지역으로 단지별 필요 매물 수를 정하고, 그보다 크게 부족한 단지를 고른다')
-  + lede('같은 매물 수라도 단지마다 의미가 다릅니다. 세대수·연식·입주 시점·지역이 비슷한 단지들이 받는 수요로 단지별 필요 매물 수를 정하고, 현재 직방 매물이 그 절반에 못 미치는 단지 중 부족분이 큰 500곳을 골랐습니다. 매물이 3건 이상 있어도 필요량에 크게 못 미치면 포함됩니다.')
-  + table(['단계', '방법'], [[T('① 예상 수요'), T('최근 3주(10/12~11/1) 직방+호갱노노 조회 유저를 세대수·연식·입주 시점·지역(9개 시장지역)으로 추정. 설명력 R² 0.75. 세대수가 2배면 조회 약 81% 증가, 준공 30년 넘은 단지는 0~2년 단지보다 약 73% 적음, 입주 전 단지는 +20%.')], [T('② 필요 매물 수'), T('예상 조회 유저 × 같은 지역에서 직방 매물이 3건 이상인 단지들의 조회 유저 1,000명당 매물 수(중앙값).')], [T('③ 대상'), T('현재 매물 ÷ 필요 매물 50% 미만, 실제 조회 유저 100명 이상. 부족분(필요 − 현재)이 큰 순 500곳.')]], { title: '① 선정 방법', note: '지역별 기준(조회 유저 1,000명당 매물): 서울A 5.2 · 서울B 5.1 · 서울C 6.5 · 경기A 2.7 · 경기B 7.0 · 경기C 17.6 · 인천 23.9 · 5대광역시+세종 30.4 · 기타 34.4. 임대·100세대 미만·입주 6개월 초과 분양/입주예정 제외(현재안과 같음).' })
-  + table(['지역', '단지'], [['서울', '60'], ['경기', '207'], ['인천', '56'], ['5대광역시+세종', '116'], ['기타', '61'], { cls: 'sum', cells: ['합계', '500'] }], { title: '② 지역별 단지 수', note: '직방 매물 0건 121곳 · 1~2건 116곳 · 3건 이상 263곳. 세대수 중앙값 1,224, 필요 매물 중앙값 38건(현재 3건). PRO 입점 112곳. 현재안(부록 H)과 겹치는 단지 73곳.' })
-  + para('현재안보다 큰 단지와 지방·인천 비중이 커집니다. 지역 기준이 그 지역의 현재 직방 커버리지에서 나오므로, 지역 관행으로 매물이 적은 곳(경기A 등)은 필요 매물도 낮게 잡혀 잘 나오지 않습니다.')
+  + para('매물 확보 후 문의 증가가 관측된 사례는 세 가지다. 첫째, 신규 LIGHT 매물이 들어간 빈 단지는 문의가 187건에서 666건으로 늘었다(매물이 생긴 빈 단지 2,533곳 전체로는 392건 → 1,004건). 둘째, 같은 매물 구간 안에서 신규 LIGHT 매물이 들어간 단지는 문의가 늘었고(1~2건 단지 +18.6%), 안 들어간 단지는 줄었다(−14.5%). 셋째, 직방에 등록되지 않았던 집을 올린 LIGHT 매물은 이미 등록된 집을 중복으로 올린 LIGHT 매물보다 매물당 문의가 약 3.7배 많았다(매물 단위 문의 기준).') + para('다만 중개사가 문의가 늘던 단지를 골라 올렸을 수 있어, 매물 효과로 단정할 수는 없다. 1~2건 단지 전체로 보면 매물은 두 배가 됐지만 문의는 4.8% 줄었다(신규 LIGHT가 안 들어간 단지 −14.5%가 포함된 값, 부록 L ①). 또 매물 1~2건 단지의 80%는 최근 3주 문의가 0건이므로, 관심이 있는 단지를 골라 채워야 한다.')
+  + table(['구분', '현재안 (부록 H)', '부록 N 추정 기준보다 매물 부족', '부록 O 사무소 보유 매물'], [[T('선정 기준'), T('조회·관심·문의 백분위 평균 상위'), T('추정 기준과의 차이가 큰 순'), T('PRO 외 사무소 상위 3곳 N사 매물 합 큰 순')], [T('대상 범위'), T('직방 매물 0~2건'), T('현재 매물이 추정 기준의 50% 미만 (3건 이상 263곳 포함)'), T('직방 매물 0~2건, 단지 조회 유저 1,000명 이상')], ['단지 수', '518', '500', '500'], ['수도권 (서울·경기·인천)', '483 (93%)', '323 (65%)', '441 (88%)'], ['직방 매물 0건', '243', '121', '214'], ['PRO 입점', '61', '112', '39'], ['세대수 (중앙값)', '821', '1,224', '793'], ['단지 조회 유저 (중앙값)', '2,503', '1,647', '2,056'], ['현재안과 겹침', '–', '73', '263']], { title: '선정 기준 3안 비교', note: '단지 조회 유저 = 10/12~11/1 직방+호갱노노 합계. 부록 N·O에 상세와 목록이 있다.' })
+  + '<p class="note">출처: ①과 03장 수치는 사내 운영지표 코호트 리포트 "신라이트 매물은 어느 단지에 들어갔나"(11/2 작성, 11/4 사용자 제공본). ②와 부록 H는 사내 분석 큐브(직방·호갱노노 조회·관심·문의 10/12~11/1, 11/1 매물, N사 매물 매핑)로 직접 집계.</p>'; } });
+APPX.push({ id: 'opt2', no: 'N', name: '부록 선정 대안: 추정 기준', render: () => hdr('부록 N', '선정 기준 대안: 추정 기준보다 매물이 부족한 단지', '세대수·연식·입주 시점·지역으로 단지별 적정 매물 수를 추정하고, 그보다 매물이 크게 부족한 단지를 고른다')
+  + lede('같은 매물 수라도 단지마다 의미가 다르다. 세대수·연식·입주 시점·지역으로 단지별 예상 조회 규모를 구하고, 같은 지역 단지들의 매물 수준을 곱해 적정 매물 수(추정 기준)를 정했다. 현재 직방 매물이 그 절반에 못 미치는 단지 중 부족분이 큰 500곳을 골랐다. 매물이 3건 이상 있어도 기준에 크게 못 미치면 포함된다.')
+  + table(['단계', '방법'], [[T('① 예상 수요'), T('최근 3주(10/12~11/1) 직방+호갱노노 단지 조회 유저를 세대수·연식·입주 시점·지역(9개 시장지역)으로 추정했다. 이 네 가지로 단지 간 조회 규모 차이의 약 75%를 설명한다(R² 0.75). 세대수가 2배면 조회가 약 81% 많고, 준공 30년이 넘은 단지는 0~2년 단지보다 약 73% 적으며, 입주 전 단지는 약 20% 많다.')], [T('② 추정 기준'), T('예상 단지 조회 유저 × 같은 지역에서 직방 매물이 3건 이상인 단지들의 예상 조회 1,000명당 매물 수(중앙값).')], [T('③ 대상'), T('현재 매물이 추정 기준의 50% 미만이고 실제 단지 조회 유저가 100명 이상인 단지 중, 부족분(기준 − 현재)이 큰 순 500곳.')]], { title: '① 선정 방법', note: '지역별 기준(예상 조회 1,000명당 매물): 서울A 5.2 · 서울B 5.1 · 서울C 6.5 · 경기A 2.7 · 경기B 7.0 · 경기C 17.6 · 인천 23.9 · 5대광역시+세종 30.4 · 기타 34.4. 임대·100세대 미만·입주 6개월 초과 분양/입주예정 제외(현재안과 같음).' })
+  + table(['지역', '단지'], [['서울', '60'], ['경기', '207'], ['인천', '56'], ['5대광역시+세종', '116'], ['기타', '61'], { cls: 'sum', cells: ['합계', '500'] }], { title: '② 지역별 단지 수', note: '직방 매물 0건 121곳 · 1~2건 116곳 · 3건 이상 263곳. 세대수 중앙값 1,224, 추정 기준 중앙값 38건(현재 3건). PRO 입점 112곳. 현재안(부록 H)과 겹치는 단지 73곳.' })
+  + para('현재안보다 큰 단지와 지방·인천 비중이 커진다. 지역 기준은 그 지역의 현재 직방 매물 수준에서 나오므로, 지금 직방 매물이 적은 지역(경기A 등)은 기준도 낮게 잡혀 대상에 잘 들어오지 않는다. 직방 매물이 10건 이상인 단지도 101곳(30건 이상 8곳) 포함된다. 03장에서 매물이 10건 넘던 단지는 신규 LIGHT 매물이 들어간 뒤에도 문의 변화가 작았으므로(10~29건 −4.5%, 30건 이상 +1.2%), 이 단지들은 세대수 대비 부족이 커도 효과가 작을 수 있다.') + para('<b>보완 필요</b> · 이 방법으로 고른 500곳 중 360곳(72%)은 실제 단지 조회 유저가 예상보다 적었고, 180곳(36%)은 예상의 절반에도 못 미쳤다. 단지 규모로 예상한 수요가 실제보다 크게 잡힌 단지가 매물 부족으로 뽑힐 수 있다는 뜻이다. 예상 조회 대신 실제 조회를 쓰고 현재 매물에 상한을 두는 방안과, 기준을 N사 매물 대비 직방 매물 비율로 바꾸는 방안을 검토하고 있다(재집계 필요).')
   + `<div class="panel"><input id="b2-q" type="search" placeholder="시도·시군구·단지명 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="b2-n" style="margin-top:8px"></p></div>`
-  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', '준공', 'PRO 입점', '직방 매물', '필요 매물', '부족', '조회 유저', '비고'], D.b2.map((r) => [String(r[0]), r[1], r[2] || '–', String(r[3]), T(r[4]), fI(r[5]), r[6], r[7], fI(r[8]), fI(r[9]), fI(r[10]), fI(r[11]), r[12]]), { title: '③ 대상 단지 500곳', max: '70vh', note: '직방 매물 = 11/1 노출 매물. 조회 유저 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). PRO 입점 = 조회 시점(11/3) 기준.' }),
+  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', '준공', 'PRO 입점', '직방 매물', '추정 기준', '부족', '단지 조회 유저', '비고'], D.b2.map((r) => [String(r[0]), sd(r[1]), r[2] || '–', String(r[3]), T(r[4]), fI(r[5]), r[6], r[7], fI(r[8]), fI(r[9]), fI(r[10]), fI(r[11]), r[12]]), { title: '③ 대상 단지 500곳', max: '70vh', note: '직방 매물 = 11/1 노출 매물. 단지 조회 유저 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). PRO 입점 = 조회 시점(11/3) 기준.' }),
   after: () => { const q = document.getElementById('b2-q'), n = document.getElementById('b2-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 13);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
-C.push({ id: 'opt3', no: '06-2', name: '대안: 사무소 1곳당 확보 가능 매물', render: () => hdr('06-2', '선정 기준 대안: 사무소 1곳당 확보 가능 매물', '직방 매물이 부족한 관심 단지 중, 사무소 몇 곳만 데려와도 매물이 크게 채워지는 단지를 먼저 고른다')
-  + lede('매물이 적은 단지의 사무소는 대체로 올릴 매물 자체가 적어, 사무소 1곳을 영입해도 늘어나는 매물과 문의가 제한적일 수 있습니다. 그래서 그 단지에 네이버 매물을 많이 가진 PRO 외 사무소 상위 3곳의 매물 합이 큰 순으로 골랐습니다.')
-  + table(['단계', '방법'], [[T('① 대상 범위'), T('11/1 직방 매물 0~2건이면서 최근 3주 조회 유저 1,000명 이상인 단지 1,394곳.')], [T('② 확보 가능 매물'), T('그 단지에 11/1 네이버 매물을 올린 사무소 중 PRO를 쓰지 않는 사무소(LIGHT·BASIC·미이용)의 매물 수. 사무소별로 많은 순 상위 3곳의 합.')], [T('③ 대상'), T('상위 3곳 매물 합이 큰 순 500곳. 같으면 조회 유저가 많은 순.')]], { title: '① 선정 방법', note: '네이버 매물을 직방 단지에 매핑한 사내 데이터 기준. 네이버에 매물이 없는 단지는 순위에서 뒤로 밀립니다.' })
-  + table(['지역', '단지'], [['서울', '137'], ['경기', '292'], ['인천', '12'], ['5대광역시+세종', '45'], ['기타', '14'], { cls: 'sum', cells: ['합계', '500'] }], { title: '② 지역별 단지 수', note: '상위 3곳 매물 합 중앙값 20건(1위 사무소 11건), 단지당 PRO 외 사무소 중앙값 11곳. 500곳의 상위 3곳 매물 합계 12,396건. 조회 유저 중앙값 2,056명. PRO 입점 39곳, 네이버에 매물을 올린 PRO 중개사가 있는 단지 116곳. 현재안(부록 H)과 겹치는 단지 263곳, 06-1과 73곳.' })
-  + para('현재안과 대상 범위가 비슷해 절반 가까이 겹치고, 순서는 영업 효율(사무소 1곳당 매물) 기준으로 바뀝니다. 사무소별 매물 수는 네이버 기준이라 직방에 실제로 옮겨 올 수 있는 양과는 다를 수 있습니다.')
+APPX.push({ id: 'opt3', no: 'O', name: '부록 선정 대안: 사무소 보유 매물', render: () => hdr('부록 O', '선정 기준 대안: 사무소 보유 매물이 많은 단지', '직방 매물이 부족한 관심 단지 중, 사무소 몇 곳만 영입해도 매물을 크게 채울 수 있는 단지를 먼저 고른다')
+  + lede('매물이 적은 단지의 사무소는 대체로 올릴 매물 자체가 적어, 사무소 1곳을 영입해도 늘어나는 매물과 문의가 작을 수 있다. 그래서 그 단지에 N사 매물을 많이 올린 PRO 외 사무소 상위 3곳의 매물 합이 큰 순으로 골랐다. PRO 사무소는 이미 이용 중인 고객이라 신규 영입으로 늘어날 매물에서 뺐다. 다만 그 단지 PRO 상품을 구입하지 않은 PRO 사무소도 해당 단지 PRO의 추가 판매 대상이 될 수 있어, 표에 PRO 중개사 수를 따로 붙였다.')
+  + table(['단계', '방법'], [[T('① 대상 범위'), T('11/1 직방 매물 0~2건이면서 최근 3주 단지 조회 유저 1,000명 이상인 단지 1,394곳.')], [T('② 사무소 보유 매물'), T('그 단지에 11/1 N사 매물을 올린 사무소 중 PRO를 쓰지 않는 사무소(LIGHT·BASIC·미이용)의 매물 수. 사무소별로 많은 순 상위 3곳의 합.')], [T('③ 대상'), T('상위 3곳 매물 합이 큰 순 500곳. 같으면 단지 조회 유저가 많은 순.')]], { title: '① 선정 방법', note: 'N사 매물을 직방 단지에 매핑한 사내 데이터 기준. N사에 매물이 없거나, 매물이 있어도 직방 단지에 매핑되지 않은 단지(예: 한강맨션)는 순위에서 뒤로 밀린다.' })
+  + table(['지역', '단지'], [['서울', '137'], ['경기', '292'], ['인천', '12'], ['5대광역시+세종', '45'], ['기타', '14'], { cls: 'sum', cells: ['합계', '500'] }], { title: '② 지역별 단지 수', note: '상위 3곳 매물 합 중앙값 20건(1위 사무소 11건), 단지당 PRO 외 사무소 중앙값 11곳. 500곳의 상위 3곳 매물 합계 12,396건. 단지 조회 유저 중앙값 2,056명. PRO 입점 39곳, N사에 매물을 올린 PRO 중개사가 있는 단지 116곳. 현재안(부록 H)과 겹치는 단지 263곳, 부록 N과 73곳.' })
+  + para('현재안과 대상 범위가 비슷해 절반 가까이(263곳) 겹치고, 순서만 사무소 보유 매물 기준으로 바뀐다. 사무소별 매물 수는 N사 기준이라, 실제로 직방에 옮겨 올 수 있는 양과는 다를 수 있다.')
   + `<div class="panel"><input id="o3-q" type="search" placeholder="시도·시군구·단지명 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="o3-n" style="margin-top:8px"></p></div>`
-  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', 'PRO 입점', '직방 매물', '조회 유저', '상위 3곳 매물', '1위 사무소 매물', 'PRO 외 사무소', 'PRO 중개사'], D.o3.map((r) => [String(r[0]), r[1], r[2] || '–', String(r[3]), T(r[4]), fI(r[5]), r[6], fI(r[7]), fI(r[8]), fI(r[9]), fI(r[10]), fI(r[11]), fI(r[12])]), { title: '③ 대상 단지 500곳', max: '70vh', note: '상위 3곳·1위 사무소 매물 = 11/1 네이버 고유 매물 수, PRO를 쓰지 않는 사무소 기준. PRO 중개사 = 그 단지에 네이버 매물을 올린 중개사 중 어느 단지든 PRO를 쓰는 수. 조회 유저 = 10/12~11/1 직방+호갱노노 합계.' }),
+  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', 'PRO 입점', '직방 매물', '단지 조회 유저', '상위 3곳 매물', '1위 사무소 매물', 'PRO 외 사무소', 'PRO 중개사'], D.o3.map((r) => [String(r[0]), sd(r[1]), r[2] || '–', String(r[3]), T(r[4]), fI(r[5]), r[6], fI(r[7]), fI(r[8]), fI(r[9]), fI(r[10]), fI(r[11]), fI(r[12])]), { title: '③ 대상 단지 500곳', max: '70vh', note: '상위 3곳·1위 사무소 매물 = 11/1 N사 고유 매물 수, PRO를 쓰지 않는 사무소 기준. PRO 중개사 = 그 단지에 N사 매물을 올린 중개사 중 어느 단지든 PRO를 쓰는 수. 단지 조회 유저 = 10/12~11/1 직방+호갱노노 합계.' }),
   after: () => { const q = document.getElementById('o3-q'), n = document.getElementById('o3-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 13);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
 C.push({ ...OLD.deals, no: 'A', name: '부록 실거래', render: () => hdr('부록 A', '실거래', '주차별 실거래: 매매·전세·월세') + body('deals') });
 C.push({ ...OLD.inquiry, no: 'B', name: '부록 문의', render: () => hdr('부록 B', '문의', '주차별 문의: 플랫폼, 유형, 거래유형') + body('inquiry') });
-C.push({ ...OLD.supply, no: 'C', name: '부록 공급', render: () => hdr('부록 C', '공급', '주차별 노출 매물·구독 중개사와 단위당 문의') + body('supply') });
+C.push({ ...OLD.supply, no: 'C', name: '부록 공급', render: () => hdr('부록 C', '공급', '주차별 노출 매물·상품 이용 중개사와 단위당 문의') + body('supply') });
 C.push({ ...OLD.oct2025, no: 'D', name: '부록 2025년 10월', render: () => hdr('부록 D', '2025년 10월 문의 급증', '작년 10월 3주차 급증은 긴 추석 연휴 반등과 10·15 대책 전후 수요가 겹친 결과로 보인다') + body('oct2025') });
 C.push({ ...OLD.basis, no: 'E', name: '부록 기준', render: () => { const b = parts(body('basis')); return hdr('부록 E', '기준과 주의', '집계 기준과 해석 시 주의') + b[0] + b[1]; } });
 C.push({ id: 'extra', no: 'F', name: '부록 추가 분석', render: () => { const p = parts(body('pro')); const k = parts(body('corr')); const l = parts(body('light')); const v = parts(body('coverage'));
   const nn = (s) => s.replace('② 같은 집', '같은 집').replace('③ 새 집', '새 집').replace('⑤ 중개사무소', '중개사무소');
   return hdr('부록 F', '추가 분석', '본문 판단을 뒷받침하는 상세 분석')
-  + sub('F-1. 8월부터 세 시점 모두 PRO인 중개사 추적 (02장 보조)') + p[1]
-  + sub('F-2. 전년 같은 계절 비교, 9월 초 vs 10월 하순, 주차별 매매·PRO YoY (03·04장 보조)') + p[2] + p[3]
-  + sub('F-3. 주차별·지역별 상관과 전년 비교 상세 (03장 보조)') + k[0] + k[1] + body('yoy')
-  + sub('F-4. 등급 이동별 문의와 같은 단지 비교 (04장 보조)') + l[0] + l[2] + l[3]
-  + sub('F-5. 같은 집 겹침과 시군구 4분위 (05장 보조)') + nn(v[1]) + nn(v[3]) + REP; },
+  + sub('F-1. 8월부터 세 시점 모두 PRO인 중개사 추적 (부록 I 보조)') + p[1]
+  + sub('F-2. 전년 같은 계절 비교, 9월 초 vs 10월 하순, 주차별 매매·PRO YoY (부록 J·K 보조)') + p[2] + p[3]
+  + sub('F-3. 주차별·지역별 상관과 전년 비교 상세 (부록 K 보조)') + k[0] + k[1] + body('yoy')
+  + sub('F-4. 등급 이동별 문의와 같은 단지 비교 (부록 J 보조)') + l[0] + l[2] + l[3]
+  + sub('F-5. 같은 집 겹침과 시군구 4분위 (03장·부록 L 보조)') + nn(v[1]) + nn(v[3]) + REP; },
   after: () => { OLD.pro.after(); OLD.yoy.after(); } });
 C.push({ id: 'priority', no: 'G', name: '부록 문의 기준 후보', render: () => hdr('부록 G', '문의 기준 후보 목록 (이전 기준)', `${fI(D.pri.length)}곳`)
-  + `<p class="lede">11/1 노출 매물 0~2건이면서 최근 3주(10/12~11/1) 직방+호갱노노 문의가 1건 이상 있던 단지입니다. 최근 3주 문의가 많은 순으로 정렬했습니다. 이 중 PRO 입점 단지는 ${fI(D.pri.filter((r) => r[4] === 'Y').length)}곳, 최근 3주 문의 합계는 ${fI(D.pri.reduce((s, r) => s + r[5], 0))}건입니다.</p>`
+  + `<p class="lede">11/1 노출 매물 0~2건이면서 최근 3주(10/12~11/1) 직방+호갱노노 문의가 1건 이상 있던 단지다. 최근 3주 문의가 많은 순으로 정렬했다. 이 중 PRO 입점 단지는 ${fI(D.pri.filter((r) => r[4] === 'Y').length)}곳, 최근 3주 문의 합계는 ${fI(D.pri.reduce((s, r) => s + r[5], 0))}건이다.</p>`
   + `<div class="panel"><input id="pri-q" type="search" placeholder="시도·시군구·단지명 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="pri-n" style="margin-top:8px"></p></div>`
-  + table(['시도', '시군구', '단지 ID', '단지명', 'PRO 입점', '최근 3주 문의'], D.pri.map((r) => [r[0], r[1], String(r[2]), T(r[3]), r[4], fI(r[5])]), { max: '70vh', note: 'PRO 입점 = 조회 시점(11/3) 아파트PRO 활성 구독 중개사가 1명 이상인 단지. 최근 3주 문의 = 10/12~11/1 직방+호갱노노 단지 문의 합계(클릭 로그).' }),
+  + table(['시도', '시군구', '단지 ID', '단지명', 'PRO 입점', '최근 3주 문의'], D.pri.map((r) => [sd(r[0]), r[1], String(r[2]), T(r[3]), r[4], fI(r[5])]), { max: '70vh', note: 'PRO 입점 = 조회 시점(11/3) 아파트PRO 이용 중개사가 1명 이상인 단지. 최근 3주 문의 = 10/12~11/1 직방+호갱노노 단지 문의 합계(클릭 로그).' }),
   after: () => { const q = document.getElementById('pri-q'), n = document.getElementById('pri-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 6);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
-C.push({ id: 'top', no: 'H', name: '부록 우선 단지 목록', render: () => hdr('부록 H', '우선 단지 목록', `우선 단지 ${fI(D.top.length)}곳`)
-  + `<p class="lede">11/1 직방 노출 매물 0~2건 단지를 최근 3주(10/12~11/1) 조회 유저·관심·문의로 점수화한 상위 500곳에, 입주 6개월 이내이면서 네이버 매물이 있는 입주예정 단지 18곳을 더했습니다. 임대, 100세대 미만, 입주 6개월 초과 분양·입주예정 단지는 뺐습니다. PRO 입점 ${fI(D.top.filter((r) => r[6] === 'Y').length)}곳.</p>`
+C.push({ id: 'top', no: 'H', name: '부록 우선 단지 목록', render: () => hdr('부록 H', '우선 단지 목록 (이전 기준)', `우선 단지 ${fI(D.top.length)}곳`)
+  + `<p class="lede">11/1 직방 노출 매물 0~2건 단지를 최근 3주(10/12~11/1) 단지 조회 유저·관심·문의로 점수화한 상위 500곳에, 입주 6개월 이내이면서 N사 매물이 있는 입주예정 단지 18곳을 더했다. 임대, 100세대 미만, 입주 6개월 초과 분양·입주예정 단지는 뺐다. PRO 입점 ${fI(D.top.filter((r) => r[6] === 'Y').length)}곳.</p>`
   + `<div class="panel"><input id="top-q" type="search" placeholder="시도·시군구·단지명 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="top-n" style="margin-top:8px"></p></div>`
-  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', 'PRO 입점', '조회 유저', '관심', '문의', '직방 매물', '비고'], D.top.map((r) => [String(r[0]), r[1], r[2], String(r[3]), T(r[4]), fI(r[5]), r[6], fI(r[7]), fI(r[8]), fI(r[9]), fI(r[10]), r[11]]), { max: '70vh', note: '점수 = 조회 유저·관심·문의 각각의 백분위(매물 0~2건이면서 조회나 문의가 있는 전체 단지 대비) 평균. 조회 유저·관심·문의 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). 직방 매물 = 11/1 노출 매물. 입주예정(추가) 18곳은 점수 순으로 끼워 넣어 500위 밖 순위도 있음. PRO 입점 = 조회 시점(11/3) 기준.' }),
+  + table(['순위', '시도', '시군구', '단지 ID', '단지명', '세대수', 'PRO 입점', '단지 조회 유저', '관심', '문의', '직방 매물', '비고'], D.top.map((r) => [String(r[0]), sd(r[1]), r[2], String(r[3]), T(r[4]), fI(r[5]), r[6], fI(r[7]), fI(r[8]), fI(r[9]), fI(r[10]), r[11]]), { max: '70vh', note: '점수 = 단지 조회 유저·관심·문의 각각의 백분위(매물 0~2건이면서 조회나 문의가 있는 전체 단지 대비) 평균. 단지 조회 유저·관심·문의 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). 직방 매물 = 11/1 노출 매물. 입주예정(추가) 18곳은 점수 순으로 끼워 넣어 500위 밖 순위도 있다. PRO 입점 = 조회 시점(11/3) 기준.' }),
   after: () => { const q = document.getElementById('top-q'), n = document.getElementById('top-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 12);
     const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
     if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
+APPX.push({ id: 'cand', no: 'Q', name: '부록 후보 단지 목록', render: () => { const A = D.cand, n2 = A.filter((r) => r[1] !== '3~9').length;
+  return hdr('부록 Q', '후보 단지 목록 (회의 후 기준)', `후보 단지 ${fI(A.length)}곳`)
+  + `<p class="lede">11/1 직방 광고매물 0~9건 단지를 최근 3주(10/12~11/1) 단지 조회 유저와 관심 단지 등록으로 점수화해, 두 구간을 합친 점수순으로 ${fI(A.length)}곳을 골랐다. 0~2건 ${fI(n2)}곳, 3~9건 ${fI(A.length - n2)}곳이다. 문의는 점수에 넣지 않고 참고 열로만 뒀다. 임대, 100세대 미만, 입주 6개월 초과 분양·입주예정은 뺐고, 입주 6개월 이내이면서 N사 매물이 있는 입주예정 단지는 넣었다. 이전 우선 단지 518곳과 겹치는 단지는 ${fI(A.filter((r) => r[18].includes('기존 518')).length)}곳이다.</p>`
+  + `<div class="panel"><input id="cand-q" type="search" placeholder="지역·시군구·단지명·구간(예: 3~9) 검색" style="width:100%;box-sizing:border-box;padding:10px 12px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)"><p class="note" id="cand-n" style="margin-top:8px"></p></div>`
+  + table(['순위', '구간', '지역', '시군구', '단지명', '세대수', '직방<br>매물', '단지 조회<br>유저', '관심', '문의<br>(참고)', 'PRO<br>입점', 'N사<br>매물', 'N사 중개사<br>PRO·LB·미이용', '비고'], A.map((r) => [String(r[0]), r[1] === '0' ? '0건' : r[1] + '건', r[2].replace('5대광역시+세종', '광역시<br>+세종'), T(sd(r[3]) + (r[4] ? ' ' + r[4] : '')), T(r[6]), fI(r[7]), fI(r[9]), fI(r[10]), fI(r[11]), fI(r[12]), r[13], fI(r[14]), r[14] ? `${r[15]}·${r[16]}·${r[17]}` : (r[19] || '–'), (r[18] || '').replace(' · ', '<br>')]), { max: '70vh', note: '* N사 매핑 매물이 0건인 169곳은 매핑 기준 중개사 구성이 없어, 사내 활동 데이터(11/1, 최근 12개월 매물 이력이 있는 직방 회원 중개사)로 채웠다. PRO 이용·PRO 외(LIGHT·BASIC과 미이용 구분 불가) 순이며, 직방 계정이 없는 사무소는 빠진다. 점수 = 단지 조회 유저·관심 각각의 백분위(0~9건 전체 모집단 대비) 평균이라 두 구간 점수를 바로 비교할 수 있고, 순위는 두 구간을 합친 점수 순이다. 단지 조회 유저·관심·문의 = 10/12~11/1 직방+호갱노노 합계(앱 간 중복 미제거). 직방 매물 = 11/1 노출 매물(제휴 제외). N사 매물·중개사 = 11/1 N사 매물 매핑 기준, 중개사는 그 단지에 매물을 올린 고유 중개사를 직방 아파트 상품 이용 상태로 나눈 수(LB = LIGHT·BASIC). N사 매물 0건은 매핑 누락일 수 있다(04장). PRO 입점 = 그 단지 PRO 상품을 구입한 중개사가 있는 단지. 비고 \'기존 518\' = 이전 우선 단지(부록 H)에도 있던 단지. 100세대 미만을 허용하면 2,000곳 안에 새로 들어오는 단지는 41곳(0~2건 40곳, 3~9건 1곳)이다. 출처: 사내 분석 큐브로 직접 집계.' }); },
+  after: () => { const q = document.getElementById('cand-q'), n = document.getElementById('cand-n'); if (!q) return; const trs = [...q.closest('section, body').querySelectorAll('tbody tr')].filter((tr) => tr.children.length === 14);
+    const f = () => { const v = q.value.trim(); let k = 0; trs.forEach((tr) => { const hit = !v || tr.textContent.includes(v); tr.hidden = !hit; if (hit) k++; }); n.textContent = `${k.toLocaleString()}곳 표시`; };
+    if (!q.dataset.w) { q.addEventListener('input', f); q.dataset.w = 1; } f(); } });
+APPX.push({ id: 'regions', no: 'P', name: '부록 지역 구분', render: () => hdr('부록 P', '지역 구분', '사업부 지역구분: 9개 시장지역과 속한 시군구')
+  + lede('02장 지역별 비교와 부록 N의 지역 기준에 쓴 지역 구분이다. 사업부 지역구분(AOMC 사업부 지역 매핑표)을 따랐고, 코호트 리포트의 지역 구분과 같다.')
+  + table(['시장지역', '시도', '시군구', '시군구 수'], [
+  ['서울A', T('서울'), T('강남구 · 서초구 · 송파구 · 용산구'), '4'],
+  ['서울B', T('서울'), T('강동구 · 광진구 · 동작구 · 마포구 · 성동구 · 양천구 · 영등포구 · 종로구 · 중구'), '9'],
+  ['서울C', T('서울'), T('강북구 · 강서구 · 관악구 · 구로구 · 금천구 · 노원구 · 도봉구 · 동대문구 · 서대문구 · 성북구 · 은평구 · 중랑구 (서울A·B 외 나머지)'), '12'],
+  ['경기A', T('경기'), T('과천시 · 성남시 분당구'), '2'],
+  ['경기B', T('경기'), T('고양시 덕양구 · 고양시 일산동구 · 광명시 · 구리시 · 군포시 · 남양주시 · 부천시 소사구 · 부천시 원미구 · 성남시 수정구 · 성남시 중원구 · 수원시 영통구 · 수원시 장안구 · 수원시 팔달구 · 안양시 동안구 · 안양시 만안구 · 용인시 기흥구 · 용인시 수지구 · 의왕시 · 하남시 · 화성시(동탄구 · 만세구 · 병점구 · 효행구)'), '23'],
+  ['경기C', T('경기'), T('가평군 · 고양시 일산서구 · 광주시 · 김포시 · 동두천시 · 부천시 오정구 · 수원시 권선구 · 시흥시 · 안산시 단원구 · 안산시 상록구 · 안성시 · 양주시 · 양평군 · 여주시 · 연천군 · 오산시 · 용인시 처인구 · 의정부시 · 이천시 · 파주시 · 평택시 · 포천시 (경기A·B 외 나머지)'), '22'],
+  ['인천', T('인천'), T('강화군 · 검단구 · 계양구 · 남동구 · 미추홀구 · 부평구 · 서해구 · 연수구 · 영종구 · 제물포구'), '10'],
+  ['5대광역시+세종', T('부산 · 대구 · 대전 · 울산 · 세종 · 전남광주'), T('부산·대구·대전·울산·세종 전 지역, 전남광주통합특별시 중 옛 광주광역시 5개 구(광산구 · 남구 · 동구 · 북구 · 서구)'), '–'],
+  ['기타', T('강원 · 충북 · 충남 · 전북 · 전남광주 · 경북 · 경남 · 제주'), T('위 지역 외 나머지 시군구(전남광주통합특별시 중 옛 전라남도 지역 포함)'), '–']], { title: '시장지역별 시군구', note: '행정구역 이름은 제공 자료(11/1 기준)의 표기를 따랐다(예: 인천 서해구·제물포구·검단구·영종구, 화성시 4개 구, 전남광주통합특별시). 매핑표에 없는 강원 양구군 1개 단지는 기타로 넣었다(코호트 리포트 기준). 시군구 수는 코호트 리포트 지역별 표에 나온 시군구 기준이다.' })
+  + '<p class="note">출처: 사내 운영지표 코호트 리포트의 사업부 지역별 표(11/4 사용자 제공본)와 이 보고서 계산 코드의 지역 분류를 대조.</p>' });
+APPX.forEach((c) => C.push(c));
+/* ---------------- appendix group ---------------- */
+const MAIN = C.filter((c) => /^\d/.test(c.no)), APX = C.filter((c) => !/^\d/.test(c.no)).sort((a, b) => a.no.localeCompare(b.no));
+const AXI = (no) => APX.findIndex((c) => c.no === no);
+const AGROUPS = [['기준·기초 자료', ['A', 'B', 'C', 'D', 'E', 'P']], ['추가 분석', ['F', 'I', 'J', 'K', 'L']], ['후보 단지', ['Q', 'M', 'N', 'O', 'H', 'G']]];
+const ADESC = { A: '주차별 매매·전세·월세 실거래', B: '주차별 문의(플랫폼·유형·거래유형)', C: '주차별 노출 매물·상품 이용 중개사와 단위당 문의', D: '2025년 10월 문의 급증 배경', E: '집계 기준과 해석 시 주의', P: '9개 시장지역(서울A·B·C 등)에 속한 시군구', F: 'PRO 추적·전년 비교·상관·같은 집 겹침 상세', I: 'PRO 중개사 1명당 문의 월별·주차별 추이', J: 'PRO 문의 감소를 등급 이동별로 분해', K: '거래량·시장 참고 자료', L: '같은 구간 비교, 시군구별 PRO 문의, 지역별 매물당 문의', M: '후보 선정 기준 3안 비교', N: '추정 기준보다 매물이 부족한 단지 500곳', O: 'N사 매물을 많이 가진 사무소 기준 500곳', Q: '회의 후 기준 후보 2,000곳 (0~9건, 문의 제외 점수)', H: '이전 기준 우선 단지 518곳 (0~2건)', G: '이전 문의 기준 후보 1,185곳' };
+const AORDER = AGROUPS.flatMap((g) => g[1].map(AXI)).filter((k) => k >= 0);
+const aname = (c) => c.name.replace(/^부록\s*/, '');
+let ax = -1;
+const APXC = { id: 'appendix', no: '부록', name: '참고자료',
+  render: () => {
+    if (ax < 0) return hdr('부록', '참고자료', '상세 분석·기준·단지 목록') + '<p class="lede">본문을 보완하는 자료다. 아래에서 보고 싶은 항목 선택.</p>'
+      + `<div id="apx-nav">${AGROUPS.map(([g, nos]) => `<div class="panel"><h3>${g}</h3><div class="apx-list">${nos.map(AXI).filter((k) => k >= 0).map((k) => `<button type="button" class="apx-item" data-ax="${k}"><span><span class="n">${APX[k].no}</span><b>${aname(APX[k])}</b></span><span class="d">${ADESC[APX[k].no] || ''}</span></button>`).join('')}</div></div>`).join('')}</div>`;
+    const s = APX[ax];
+    return `<nav class="subnav" id="apx-nav" aria-label="부록 선택"><button type="button" data-ax="-1">목차</button>${AORDER.map((k) => `<button type="button" data-ax="${k}" aria-current="${k === ax}"><span class="n">${APX[k].no}</span>${aname(APX[k])}</button>`).join('')}</nav>` + s.render();
+  },
+  after: () => {
+    const nav = document.getElementById('apx-nav');
+    if (nav) nav.onclick = (e) => { const b = e.target.closest('[data-ax]'); if (b) { ax = +b.dataset.ax; go(cur); } };
+    const s = ax >= 0 ? APX[ax] : null; if (s && s.after) s.after();
+  } };
+C.length = 0; MAIN.forEach((c) => C.push(c)); C.push(APXC);
 /* ---------------- navigation ---------------- */
 const tabs = document.getElementById('tabs'), box = document.getElementById('ch'), prev = document.getElementById('prev'), next = document.getElementById('next');
-C.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `<span class="n">${c.no}</span>${c.name}`; b.onclick = () => go(i); tabs.appendChild(b); });
+C.forEach((c, i) => { const b = document.createElement('button'); b.type = 'button'; b.innerHTML = `<span class="n">${c.no}</span>${c.name}`; b.onclick = () => { if (C[i] === APXC) ax = -1; go(i); }; tabs.appendChild(b); });
 let cur = 0, after = null;
+const inApx = () => C[cur] === APXC;
+const lab = (c) => `${c.no} ${aname(c)}`;
 function go(i, push = true) {
   cur = Math.max(0, Math.min(C.length - 1, i)); const c = C[cur];
   box.innerHTML = c.render(); after = c.after || null; if (after) after();
   [...tabs.children].forEach((b, j) => b.setAttribute('aria-current', j === cur ? 'true' : 'false'));
   tabs.children[cur].scrollIntoView({ block: 'nearest', inline: 'center' });
-  prev.hidden = cur === 0; next.hidden = cur === C.length - 1;
-  if (cur > 0) prev.innerHTML = `<small>이전</small>${C[cur - 1].no} ${C[cur - 1].name}`;
-  if (cur < C.length - 1) next.innerHTML = `<small>다음</small>${C[cur + 1].no} ${C[cur + 1].name}`;
-  if (push && location.hash !== '#' + c.id) history.replaceState(null, '', '#' + c.id);
+  if (inApx()) {
+    const k = ax < 0 ? -1 : AORDER.indexOf(ax);
+    prev.hidden = false; prev.innerHTML = k < 0 ? `<small>이전</small>${C[cur - 1].no} ${C[cur - 1].name}` : `<small>이전</small>${k === 0 ? '부록 목차' : lab(APX[AORDER[k - 1]])}`;
+    next.hidden = k >= AORDER.length - 1; if (!next.hidden) next.innerHTML = `<small>다음</small>${lab(APX[AORDER[k + 1]])}`;
+  } else {
+    prev.hidden = cur === 0; next.hidden = cur === C.length - 1;
+    if (cur > 0) prev.innerHTML = `<small>이전</small>${C[cur - 1].no} ${C[cur - 1].name}`;
+    if (cur < C.length - 1) next.innerHTML = `<small>다음</small>${C[cur + 1].no} ${C[cur + 1].name}`;
+  }
+  const hid = inApx() && ax >= 0 ? APX[ax].id : c.id;
+  if (push && location.hash !== '#' + hid) history.replaceState(null, '', '#' + hid);
   window.scrollTo(0, 0);
 }
-prev.onclick = () => go(cur - 1); next.onclick = () => go(cur + 1);
-document.addEventListener('keydown', (e) => { if (e.target.closest && e.target.closest('input,textarea')) return; if (e.key === 'ArrowRight') go(cur + 1); if (e.key === 'ArrowLeft') go(cur - 1); });
-const fromHash = () => { const i = C.findIndex((c) => '#' + c.id === location.hash); return i < 0 ? 0 : i; };
-window.addEventListener('hashchange', () => { const i = fromHash(); if (i !== cur) go(i, false); });
+const goPrev = () => { if (inApx()) { const k = ax < 0 ? -1 : AORDER.indexOf(ax); if (k < 0) go(cur - 1); else { ax = k === 0 ? -1 : AORDER[k - 1]; go(cur); } } else go(cur - 1); };
+const goNext = () => { if (inApx()) { const k = ax < 0 ? -1 : AORDER.indexOf(ax); if (k < AORDER.length - 1) { ax = AORDER[k + 1]; go(cur); } } else { if (C[cur + 1] === APXC) ax = -1; go(cur + 1); } };
+prev.onclick = goPrev; next.onclick = goNext;
+document.addEventListener('keydown', (e) => { if (e.target.closest && e.target.closest('input,textarea')) return; if (e.key === 'ArrowRight') goNext(); if (e.key === 'ArrowLeft') goPrev(); });
+const fromHash = () => { const h = location.hash.slice(1); const i = C.findIndex((c) => c.id === h); if (i >= 0) { if (C[i] === APXC) ax = -1; return i; } const j = APX.findIndex((c) => c.id === h); if (j >= 0) { ax = j; return C.indexOf(APXC); } return 0; };
+window.addEventListener('hashchange', () => { go(fromHash(), false); });
 go(fromHash(), false);
 let raf; new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => after && after()); }).observe(box);
 const mq = window.matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener && mq.addEventListener('change', () => after && after());
