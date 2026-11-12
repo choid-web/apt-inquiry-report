@@ -41,8 +41,16 @@ for r,u in zip(L,top):
     else:
         r['agent_source']='N사 매핑(11/1)'; r['naver_agents_nonpro_hist']=None
     if r['naver_listings']>0: r['mapping_check']=''
-    elif r['naver_hist_12m']: r['mapping_check']='매핑 누락 의심'
+    elif r['naver_hist_12m']: r['mapping_check']='N사 수집 누락 의심'
     else: r['mapping_check']='N사 이력 없음'
+# 11/5 N사 수집 이력(zb_naver_mapped_items 2025-01~2026-10 월별, area_danji_id 기준)
+km='zb_naver_mapped_items.'; HIST=collections.defaultdict(dict)
+for x in g['L']('1793852730949'):
+    if int(x[km+'unique_article_cnt'] or 0)>0: HIST[g['sid'](x[km+'area_danji_id'])][x[km+'base_date.month'][:7]]=int(x[km+'unique_article_cnt'])
+for r,u in zip(L,top):
+    h=HIST.get(u['id'],{}); lm=max(h) if (h and r['mapping_check']) else ''
+    r['last_collected_month']=lm
+    r['gap_type']='' if not r['mapping_check'] else ('C. N사 이력 없음' if r['mapping_check']=='N사 이력 없음' else ('A. 수집 중단' if lm else 'B. 2025년 이후 기록 없음'))
 C795={str(r[5]) for r in json.load(open(os.path.join(HERE,'../../rpt/data.json')))['cand']}
 for r,u in zip(L,top): r['in_795']=u['id'] in C795
 G=lambda r:'0~2' if r['bucket'] in('0','1~2') else '3~9'
@@ -60,11 +68,11 @@ meta={'definition':{'universe':'t3_candidates.py와 같음(11/1 직방 광고매
  'score':'(최근 3주 단지 조회 유저 백분위 + 관심 등록 백분위) ÷ 2. 백분위는 0~9건 전체 모집단 기준(t3와 같음). 동점이면 조회 유저 많은 순.',
  'select':'구간(0~2·3~9) 구분 없이 점수 상위 2,000곳.',
  'agent_source':'N사 매핑 매물 0건 169곳은 매핑 기준 구성이 없어, 활동 데이터(11/1 zb_danji_realtor_activity, 최근 12개월 N사 이력이 있는 직방 회원 중개사)로 채움: PRO 이용 = pro_active_agent_cnt, PRO 외 = activity_only_agent_cnt(LIGHT·BASIC과 미이용 구분 불가). 직방 계정 없는 사무소는 포함 안 됨.',
- 'mapping_check':'N사 매핑 매물 0건 단지만 판정. 매핑 누락 의심 = zb_danji_realtor_activity(11/1)에 최근 12개월 N사 매물 이력이 있는데 11/1 매핑 매물 0건. N사 이력 없음 = 이력도 0. 확정은 N사 직접 검색 필요.',
+ 'mapping_check':'N사 매핑 매물 0건 단지만 판정. N사 수집 누락 의심 = zb_danji_realtor_activity(11/1)에 최근 12개월 N사 매물 이력이 있는데 11/1 매핑 매물 0건. N사 이력 없음 = 이력도 0. 확정은 N사 직접 검색 필요.',
  'naver_agents':'N사 매물을 올린 중개사 수를 직방 아파트 상품 이용 상태(PRO / LIGHT·BASIC / 미이용)로 나눔. 기존 v2 1,000곳 조회분 + 11/5 추가 조회 1,129곳.'},'summary':summ}
 OUT=os.path.join(HERE,'../../data/v2')
 json.dump({'meta':meta,'rows':L},open(os.path.join(OUT,'candidates_2000.json'),'w'),ensure_ascii=False,indent=1)
-H={'rank':'순위','region':'사업부 지역','local1':'시도','local2':'시군구','danji_id':'단지 ID','name':'단지명','households':'세대수','completion':'준공(입주)','bucket':'매물 구간','zb_listings_1101':'11/1 직방 매물','danji_view_users':'단지 조회 유저','wish':'관심','inquiry_ref':'문의(참고)','score':'점수','pro_entry':'PRO 입점','naver_listings':'N사 매물','naver_agents_pro':'N사 중개사 PRO 이용','naver_agents_light_basic':'N사 중개사 LIGHT·BASIC','naver_agents_none':'N사 중개사 미이용','naver_agents_nonpro_hist':'N사 이력 중개사 PRO 외(LB+미이용)','agent_source':'중개사 구성 출처','note':'비고','mapping_check':'N사 매핑 점검','naver_hist_12m':'N사 매물 이력(12개월)','naver_hist_3m':'N사 매물 이력(3개월)','naver_hist_agents':'N사 이력 중개사 수','in_old_518':'이전 518 포함','in_795':'현재 795 포함','region_assoc_mark':'지역회 표시(내부용)'}
+H={'rank':'순위','region':'사업부 지역','local1':'시도','local2':'시군구','danji_id':'단지 ID','name':'단지명','households':'세대수','completion':'준공(입주)','bucket':'매물 구간','zb_listings_1101':'11/1 직방 매물','danji_view_users':'단지 조회 유저','wish':'관심','inquiry_ref':'문의(참고)','score':'점수','pro_entry':'PRO 입점','naver_listings':'N사 매물','naver_agents_pro':'N사 중개사 PRO 이용','naver_agents_light_basic':'N사 중개사 LIGHT·BASIC','naver_agents_none':'N사 중개사 미이용','naver_agents_nonpro_hist':'N사 이력 중개사 PRO 외(LB+미이용)','agent_source':'중개사 구성 출처','note':'비고','mapping_check':'N사 매핑 점검','gap_type':'누락 구분','last_collected_month':'마지막 N사 수집 월','naver_hist_12m':'N사 매물 이력(12개월)','naver_hist_3m':'N사 매물 이력(3개월)','naver_hist_agents':'N사 이력 중개사 수','in_old_518':'이전 518 포함','in_795':'현재 795 포함','region_assoc_mark':'지역회 표시(내부용)'}
 with open(os.path.join(OUT,'candidates_2000.csv'),'w',newline='',encoding='utf-8-sig') as fh:
     w=csv.writer(fh); w.writerow([H[k] for k in H])
     for r in L: w.writerow(['' if r[k] is None else r[k] for k in H])
