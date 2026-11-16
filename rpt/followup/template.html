@@ -9,6 +9,11 @@ __CSS__
 .num { font-family: var(--f-num); color: var(--accent); font-size: 13px; margin-right: 6px; }
 td.g { font-family: var(--f-body); }
 th.l { text-align: left; }
+table.grp th.g { text-align: center; color: var(--ink); font-weight: 600; border-bottom: 1px solid var(--line); }
+table.grp .bl { border-left: 1px solid var(--line); }
+table.grp thead tr:first-child th { border-bottom-color: var(--line); }
+table.grp tr.ref td { color: var(--muted); }
+table.grp thead tr:nth-child(2) th { text-align: right; }
 .foot { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 12px; }
 </style>
 
@@ -72,19 +77,21 @@ th.l { text-align: left; }
 
 <section class="sec">
   <h3><span class="num">04</span>매물 변화 그룹별 문의 (영업 전 1주 vs 영업 후 1주)</h3>
-  <div class="panel"><div class="tw"><table>
-    <thead><tr><th class="l">그룹 (11/8 → 11/15 매물)</th><th>단지 수</th><th>11/8 매물</th><th>11/15 매물</th><th>영업 전 문의</th><th>영업 후 문의</th><th>증감</th><th>문의 증가 단지</th><th>동일</th><th>감소</th></tr></thead>
+  <div class="panel"><div class="tw"><table class="grp">
+    <thead>
+      <tr><th class="l" rowspan="2">그룹 (11/8 → 11/15 매물)</th><th rowspan="2">단지 수</th><th class="g bl" colspan="2">직방 광고매물</th><th class="g bl" colspan="3">주간 문의</th></tr>
+      <tr><th class="bl">11/8</th><th>11/15</th><th class="bl">영업 전</th><th>영업 후</th><th>증감률</th></tr>
+    </thead>
     <tbody>
-      <tr class="hl"><td>위 구간으로 이동</td><td>214</td><td>969</td><td>2,350</td><td>72</td><td>123</td><td class="up">+51</td><td>56</td><td>132</td><td>26</td></tr>
-      <tr><td>구간 안에서 증가</td><td>403</td><td>2,820</td><td>3,721</td><td>214</td><td>240</td><td class="up">+26</td><td>100</td><td>220</td><td>83</td></tr>
-      <tr><td>동일</td><td>1,187</td><td>2,459</td><td>2,459</td><td>248</td><td>226</td><td class="down">−22</td><td>111</td><td>951</td><td>125</td></tr>
-      <tr><td>감소</td><td>196</td><td>1,624</td><td>1,303</td><td>152</td><td>125</td><td class="down">−27</td><td>46</td><td>103</td><td>47</td></tr>
-      <tr class="sum"><td>2,000곳 합계</td><td>2,000</td><td>7,872</td><td>9,833</td><td>686</td><td>714</td><td class="up">+28</td><td>313</td><td>1,406</td><td>281</td></tr>
-      <tr><td>(참고) 그 외 단지</td><td>29,274</td><td>–</td><td>–</td><td>5,807</td><td>5,975</td><td class="up">+168</td><td>–</td><td>–</td><td>–</td></tr>
-      <tr><td>(참고) 아파트 단지 전체</td><td>31,274</td><td>–</td><td>–</td><td>6,493</td><td>6,689</td><td class="up">+196</td><td>–</td><td>–</td><td>–</td></tr>
+      <tr class="hl"><td>위 구간으로 이동</td><td>214</td><td class="bl">969</td><td>2,350</td><td class="bl">72</td><td>123</td><td class="up">+70.8%</td></tr>
+      <tr><td>구간 안에서 증가</td><td>403</td><td class="bl">2,820</td><td>3,721</td><td class="bl">214</td><td>240</td><td class="up">+12.1%</td></tr>
+      <tr><td>동일</td><td>1,187</td><td class="bl">2,459</td><td>2,459</td><td class="bl">248</td><td>226</td><td class="down">−8.9%</td></tr>
+      <tr><td>감소</td><td>196</td><td class="bl">1,624</td><td>1,303</td><td class="bl">152</td><td>125</td><td class="down">−17.8%</td></tr>
+      <tr class="sum"><td>우선 단지 합계</td><td>2,000</td><td class="bl">7,872</td><td>9,833</td><td class="bl">686</td><td>714</td><td class="up">+4.1%</td></tr>
+      <tr class="ref"><td>(참고) 그 외 단지</td><td>29,274</td><td class="bl">268,818</td><td>289,371</td><td class="bl">5,807</td><td>5,975</td><td class="up">+2.9%</td></tr>
     </tbody>
   </table></div>
-  <p class="note">영업 전 1주 11/2~11/8, 영업 후 1주 11/9~11/15. 문의 = 직방+호갱노노 단지별 문의 합계(단지 정보가 없는 중개사 문의 제외).</p></div>
+  <p class="note">영업 전 1주 11/2~11/8, 영업 후 1주 11/9~11/15. 문의 = 직방+호갱노노 단지별 문의 합계(단지 정보가 없는 중개사 문의 제외). 그 외 단지 매물에는 매물 10건 이상 단지가 포함돼 규모가 큼.</p></div>
 </section>
 
 <section class="sec">
