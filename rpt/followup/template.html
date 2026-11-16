@@ -22,6 +22,13 @@ details.fold > summary .fold-hint { color: var(--muted); font-size: 12.5px; }
 details.fold[open] > summary .fold-hint { display: none; }
 details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tabpane[hidden] { display: none !important; }
+.tabs[hidden] { display: none !important; }
+.morelink { font-size: 12px; margin: 0; }
+.morelink a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.morelink a:hover { color: var(--accent); }
+.navtog { font: inherit; font-size: 12px; line-height: 1; border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 4px; padding: 2px 6px; margin-left: 6px; cursor: pointer; vertical-align: middle; }
+.navtog[aria-expanded="true"] { color: var(--ink); }
+.navtog:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; }
 .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .kpi .kl { color: var(--muted); font-size: 13px; }
@@ -41,10 +48,6 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
   <span class="brand">아파트 문의 성과 점검 · 후속</span>
   <span class="meta">영업 시작 11/11 기준 · 작성 2026-11-16</span>
 </div>
-<nav class="tabs" role="tablist">
-  <button role="tab" data-tab="danji" aria-current="true"><span class="n">01</span>우선 단지 지표</button>
-  <button role="tab" data-tab="sales"><span class="n">02</span>초기 영업 성과</button>
-</nav>
 </div></div>
 
 <main>
@@ -188,6 +191,7 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
 </section>
 
 <p class="foot">검증 상태: 수치는 2026-11-16 사내 큐브 조회 결과로 계산했음. 외부 자료는 사용하지 않았음.</p>
+<p class="morelink"><a class="panelink" href="#sales">초기 영업 성과 보기 →</a></p>
 
 </div>
 <div class="ch tabpane" id="tab-sales" hidden>
@@ -315,6 +319,7 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
 </section>
 
 <p class="foot">검증 상태: 수치는 2026-11-16 사내 큐브 조회 결과로 계산했음. 외부 자료는 사용하지 않았음.</p>
+<p class="morelink"><a class="panelink" href="#danji">← 우선 단지 지표로 돌아가기</a></p>
 </div>
 
 </main>
@@ -325,6 +330,7 @@ function show(k){if(!panes[k])k='danji';Object.keys(panes).forEach(function(p){p
 tabs.forEach(function(b){b.addEventListener('click',function(){try{history.replaceState(null,'','#'+b.dataset.tab)}catch(e){location.hash=b.dataset.tab}show(b.dataset.tab);window.scrollTo(0,0);});});
 window.addEventListener('hashchange',function(){show(location.hash.slice(1))});
 show(location.hash.slice(1)||'danji');
+document.querySelectorAll('a.panelink').forEach(function(a){a.addEventListener('click',function(){setTimeout(function(){show(location.hash.slice(1));window.scrollTo(0,0)},0)})});
 var D=[['11/10',4,1,1],['11/11',104,24,24],['11/12',359,79,117],['11/13',526,499,201],['11/14',563,507,230],['11/15',562,505,230]];
 var el=document.getElementById('salesbar');if(!el)return;
 var W=760,H=250,L=48,R=10,T=12,B=30,hi=1400,n=D.length,bw=56,gap=(W-L-R)/n;
