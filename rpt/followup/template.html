@@ -14,6 +14,13 @@ table.grp .bl { border-left: 1px solid var(--line); }
 table.grp thead tr:first-child th { border-bottom-color: var(--line); }
 table.grp tr.ref td { color: var(--muted); }
 table.grp thead tr:nth-child(2) th { text-align: right; }
+details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 10px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary h3::before { content: "▸"; display: inline-block; width: 1em; color: var(--muted); }
+details.fold[open] > summary h3::before { content: "▾"; }
+details.fold > summary .fold-hint { color: var(--muted); font-size: 12.5px; }
+details.fold[open] > summary .fold-hint { display: none; }
+details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .foot { color: var(--muted); font-size: 12.5px; border-top: 1px solid var(--line); padding-top: 12px; }
 </style>
 
@@ -110,8 +117,8 @@ table.grp thead tr:nth-child(2) th { text-align: right; }
   <p class="note">주간 = 월~일. 중개사 문의는 문의 시점에 아파트 상품을 보유한 중개사의 프로필로 들어온 문의 전체라, 원룸을 보다가 문의한 경우도 포함됨. LIGHT 무료제공(9/29~) 이후 크게 늘었고 원룸 수요가 많이 섞여 있어 아파트 문의 추이에서는 제외해서 봄(표 6). 표 1·4에도 포함되지 않음. 표 1·4는 직방 단지에 연결되는 문의만 단지별로 더한 값이라, 단지 정보가 없거나 호갱노노 단지가 직방 단지에 매핑되지 않는 문의는 빠짐.</p></div>
 </section>
 
-<section class="sec">
-  <h3><span class="num">06</span>보조 지표</h3>
+<details class="sec fold">
+  <summary><h3><span class="num">06</span>보조 지표</h3><span class="fold-hint">펼치기</span></summary>
   <div class="panel"><div class="tw"><table>
     <thead><tr><th class="l">항목</th><th>값</th></tr></thead>
     <tbody>
@@ -129,7 +136,7 @@ table.grp thead tr:nth-child(2) th { text-align: right; }
       <tr><td>└ 문의 영업 전 → 영업 후</td><td>5 → 8</td></tr>
     </tbody>
   </table></div></div>
-</section>
+</details>
 
 <section class="sec">
   <h3><span class="num">07</span>해석과 한계</h3>
