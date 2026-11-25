@@ -24,6 +24,7 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
 .tabpane[hidden] { display: none !important; }
 .tabs[hidden] { display: none !important; }
 .morelink { font-size: 12px; margin: 0; }
+.panel .tw + .tw { margin-top: 14px; }
 .morelink a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
 .morelink a:hover { color: var(--accent); }
 .navtog { font: inherit; font-size: 12px; line-height: 1; border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 4px; padding: 2px 6px; margin-left: 6px; cursor: pointer; vertical-align: middle; }
@@ -46,7 +47,7 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
 
 <div class="bar"><div class="bar-in"><div class="bar-top">
   <span class="brand">아파트 문의 성과 점검 · 후속</span>
-  <span class="meta">영업 시작 11/11 기준 · 작성 2026-11-16</span>
+  <span class="meta">영업 시작 11/11 기준 · 갱신 2026-11-25</span>
 </div>
 </div></div>
 
@@ -54,90 +55,106 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
 <div class="ch tabpane" id="tab-danji">
 
 <div class="hd">
-  <div class="eyebrow">FOLLOW-UP · 우선 단지 2,000곳 · 영업 첫 5일</div>
-  <h2>영업 첫 5일, 우선 단지 문의 +11.7% — 매물이 늘어난 단지는 +64.9%</h2>
-  <p class="lede">11/11 단지 영업 시작 전후 같은 요일 5일(수~일)을 비교함. 우선 단지 문의는 그 외 단지보다 크게 늘었고, 매물이 늘어난 단지에서 증가가 집중됨.</p>
+  <div class="eyebrow">FOLLOW-UP · 우선 단지 2,000곳 · 영업 2주 주차별</div>
+  <h2>영업 2주차, 시장 문의가 줄 때도 우선 단지 문의 +4.3% — 매물 늘어난 단지는 +39.3%</h2>
+  <p class="lede">11/11 단지 영업 시작 전 1주와 영업 후 1·2주차를 같은 요일 7일(수~화) 단위로 비교함. 우선 단지 문의는 두 주 모두 직전보다 많았고, 매물이 늘어난 단지에서 증가가 커졌음.</p>
 </div>
 
 <div class="key"><ul>
-  <li>우선 단지 2,000곳 문의는 영업 직전 5일 477건에서 영업 첫 5일 533건(+11.7%)으로 늘었음. 그 외 단지는 3,949건에서 4,052건(+2.6%)임 (표 1).</li>
-  <li>같은 선정 조건의 그 외 단지(15,740곳)는 748건에서 716건(−4.3%)으로 오히려 줄었음 (표 1).</li>
-  <li>영업 기간 매물이 늘어난 우선 단지 446곳의 문의는 131건에서 216건(+64.9%)으로 늘었고, 매물이 그대로거나 줄어든 1,554곳은 346건에서 317건(−8.4%)임 (표 4).</li>
-  <li>영업 기간 매물은 우선 단지 +12.2%, 그 외 단지 +4.2%임. 11/10 매물 0건이던 단지 중 매물이 생긴 비율은 7.8% vs 2.3%임 (표 2).</li>
+  <li>우선 단지 2,000곳 문의는 영업 직전 1주 658건에서 1주차 718건(+9.1%), 2주차 686건(+4.3%)임. 그 외 단지는 1주차 +3.2%, 2주차 −3.1%임 (표 1).</li>
+  <li>같은 선정 조건 단지(15,740곳)는 1주차 −2.5%, 2주차 −1.7%로 두 주 모두 줄었음 (표 1).</li>
+  <li>11/10 대비 11/24 매물은 우선 단지 +34.3%, 그 외 단지 +9.3%임. 11/10 매물 0건 단지 중 11/24에 매물이 생긴 비율은 22.7% vs 5.9%임 (표 2).</li>
+  <li>매물이 늘어난 우선 단지 800곳의 문의는 321건 → 408건 → 447건(1주차 +27.1%, 2주차 +39.3%)이고, 매물이 그대로거나 줄어든 1,200곳은 337건 → 310건 → 239건임 (표 4).</li>
 </ul></div>
 
 <section class="sec">
-  <h3><span class="num">01</span>문의 추이: 우선 단지 vs 그 외 단지</h3>
-  <div class="panel"><div class="tw"><table>
-    <thead><tr><th class="l">구분</th><th>단지 수</th><th>영업 직전 5일</th><th>영업 첫 5일</th><th>증감</th></tr></thead>
-    <tbody>
-      <tr class="hl"><td>우선 단지 (1~2,000위)</td><td>2,000</td><td>477</td><td>533</td><td class="up">+11.7%</td></tr>
-      <tr><td>그 외 단지</td><td>29,274</td><td>3,949</td><td>4,052</td><td class="up">+2.6%</td></tr>
-      <tr><td class="g">　└ 같은 선정 조건 단지 (2,000위 밖)</td><td>15,740</td><td>748</td><td>716</td><td class="down">−4.3%</td></tr>
-      <tr class="sum"><td>아파트 단지 전체</td><td>31,274</td><td>4,426</td><td>4,585</td><td class="up">+3.6%</td></tr>
-    </tbody>
-  </table></div>
-  <p class="note">영업 직전 5일 = 11/4(수)~11/8(일), 영업 첫 5일 = 11/11(수)~11/15(일). 요일 영향을 없애려고 같은 요일끼리 비교함. 문의 = 직방+호갱노노 단지별 문의 합계(단지 정보가 없는 중개사 문의 제외). 그 외 단지 = 우선 단지 2,000곳을 뺀 나머지 아파트 단지 전체. 단지 수는 직방 노출 아파트 단지 기준(원 리포트 실질 단지 산정 시점 집계).</p></div>
-</section>
-
-<section class="sec">
-  <h3><span class="num">02</span>직방 광고매물 추이: 우선 단지 vs 그 외 단지</h3>
-  <div class="panel"><div class="tw"><table>
-    <thead><tr><th class="l">구분</th><th>11/1 (선정)</th><th>11/10 (영업 직전)</th><th>11/15</th><th>영업 기간 증감</th><th>매물 늘어난 단지 비율</th><th>0건 단지 중 매물 생긴 비율</th></tr></thead>
-    <tbody>
-      <tr class="hl"><td>우선 단지 (1~2,000위)</td><td>5,339</td><td>8,760</td><td>9,833</td><td class="up">+12.2%</td><td>22.3%</td><td>7.8%</td></tr>
-      <tr><td>그 외 단지</td><td>246,385</td><td>277,788</td><td>289,371</td><td class="up">+4.2%</td><td>12.2%</td><td>2.3%</td></tr>
-    </tbody>
-  </table></div>
-  <p class="note">각 기준일 시점의 직방 아파트 노출 매물 수(잔량). 영업 기간 = 11/10 → 11/15. 매물 늘어난 단지 비율 = 11/15 매물이 11/10보다 많은 단지 ÷ 전체 단지. 0건 단지 중 매물 생긴 비율 = 11/10 매물 0건 단지 중 11/15 매물 1건 이상인 단지 비율. 그 외 단지(29,274곳)에는 매물이 원래 많은 단지(10건 이상)가 포함돼 증가율이 낮게 나오고, 매물이 많은 단지는 1건만 늘어도 '매물 늘어난 단지'로 잡힘. 그 외 단지의 매물 0건 단지 수는 29,274곳에서 11/10 매물이 있던 단지를 빼서 추정함.</p></div>
-</section>
-
-<section class="sec">
-  <h3><span class="num">03</span>영업 기간 매물 구간 이동 (11/10 → 11/15)</h3>
-  <div class="panel"><div class="tw"><table>
-    <thead><tr><th class="l">11/10 구간</th><th>단지 수</th><th>11/15 0~2건</th><th>11/15 3~9건</th><th>11/15 10건+</th></tr></thead>
-    <tbody>
-      <tr><td>0~2건</td><td>1,036</td><td>973</td><td class="c">55</td><td class="c">8</td></tr>
-      <tr><td>3~9건</td><td>778</td><td>28</td><td>671</td><td class="c">79</td></tr>
-      <tr><td>10건+</td><td>186</td><td>0</td><td>13</td><td>173</td></tr>
-      <tr class="sum"><td>합계</td><td>2,000</td><td>1,001</td><td>739</td><td>260</td></tr>
-    </tbody>
-  </table></div>
-  <p class="note">강조 칸이 영업 기간에 위 구간으로 올라간 단지임 (55 + 8 + 79 = 142곳). 11/10 구간은 11/1 선정 이후 매물이 변해 선정 당시 구간(0~2건 1,179곳, 3~9건 821곳)과 다름.</p></div>
-</section>
-
-<section class="sec">
-  <h3><span class="num">04</span>매물 변화 그룹별 문의 (우선 단지)</h3>
+  <h3><span class="num">01</span>주차별 문의 추이: 우선 단지 vs 그 외 단지</h3>
   <div class="panel"><div class="tw"><table class="grp">
     <thead>
-      <tr><th class="l" rowspan="2">그룹 (11/10 → 11/15 매물)</th><th rowspan="2">단지 수</th><th class="g bl" colspan="2">직방 광고매물</th><th class="g bl" colspan="3">문의</th></tr>
-      <tr><th class="bl">11/10</th><th>11/15</th><th class="bl">영업 직전 5일</th><th>영업 첫 5일</th><th>증감률</th></tr>
+      <tr><th class="l" rowspan="2">구분</th><th rowspan="2">단지 수</th><th class="g bl" colspan="3">문의</th><th class="g bl" colspan="2">직전 1주 대비</th></tr>
+      <tr><th class="bl">직전 1주</th><th>1주차</th><th>2주차</th><th class="bl">1주차</th><th>2주차</th></tr>
     </thead>
     <tbody>
-      <tr><td>위 구간으로 이동</td><td>142</td><td class="bl">678</td><td>1,540</td><td class="bl">33</td><td>68</td><td class="up">+106.1%</td></tr>
-      <tr><td>구간 안에서 증가</td><td>304</td><td class="bl">2,330</td><td>2,860</td><td class="bl">98</td><td>148</td><td class="up">+51.0%</td></tr>
-      <tr class="hl"><td>매물 증가 소계</td><td>446</td><td class="bl">3,008</td><td>4,400</td><td class="bl">131</td><td>216</td><td class="up">+64.9%</td></tr>
-      <tr><td>동일</td><td>1,382</td><td class="bl">3,971</td><td>3,971</td><td class="bl">268</td><td>233</td><td class="down">−13.1%</td></tr>
-      <tr><td>감소</td><td>172</td><td class="bl">1,781</td><td>1,462</td><td class="bl">78</td><td>84</td><td class="up">+7.7%</td></tr>
-      <tr class="ref"><td>매물 그대로·감소 소계</td><td>1,554</td><td class="bl">5,752</td><td>5,433</td><td class="bl">346</td><td>317</td><td class="down">−8.4%</td></tr>
-      <tr class="sum"><td>우선 단지 합계</td><td>2,000</td><td class="bl">8,760</td><td>9,833</td><td class="bl">477</td><td>533</td><td class="up">+11.7%</td></tr>
+      <tr class="hl"><td>우선 단지 (1~2,000위)</td><td>2,000</td><td class="bl">658</td><td>718</td><td>686</td><td class="bl up">+9.1%</td><td class="up">+4.3%</td></tr>
+      <tr><td>그 외 단지</td><td>29,274</td><td class="bl">5,872</td><td>6,061</td><td>5,689</td><td class="bl up">+3.2%</td><td class="down">−3.1%</td></tr>
+      <tr><td class="g">　└ 같은 선정 조건 단지 (2,000위 밖)</td><td>15,740</td><td class="bl">1,114</td><td>1,086</td><td>1,095</td><td class="bl down">−2.5%</td><td class="down">−1.7%</td></tr>
+      <tr class="sum"><td>아파트 단지 전체</td><td>31,274</td><td class="bl">6,530</td><td>6,779</td><td>6,375</td><td class="bl up">+3.8%</td><td class="down">−2.4%</td></tr>
     </tbody>
   </table></div>
-  <p class="note">문의 = 직방+호갱노노 단지별 문의 합계(단지 정보가 없는 중개사 문의 제외). 그룹별 단지 수가 작아 증감률이 크게 출렁일 수 있음.</p></div>
+  <p class="note">직전 1주 = 11/4(수)~11/10(화), 1주차 = 11/11(수)~11/17(화), 2주차 = 11/18(수)~11/24(화). 요일 영향을 없애려고 같은 요일 7일씩 비교함. 문의 = 직방+호갱노노 단지별 문의 합계(단지 정보가 없는 중개사 문의 제외). 그 외 단지 = 우선 단지 2,000곳을 뺀 나머지 아파트 단지 전체. 단지 수는 직방 노출 아파트 단지 기준(원 리포트 실질 단지 산정 시점 집계).</p></div>
 </section>
 
 <section class="sec">
-  <h3><span class="num">05</span>플랫폼 전체 문의 유형별 추이</h3>
-  <div class="panel"><div class="tw"><table>
-    <thead><tr><th class="l">문의 유형 (직방+호갱노노)</th><th>영업 직전 5일</th><th>영업 첫 5일</th></tr></thead>
+  <h3><span class="num">02</span>주차별 직방 광고매물 추이: 우선 단지 vs 그 외 단지</h3>
+  <div class="panel"><div class="tw"><table class="grp">
+    <thead>
+      <tr><th class="l" rowspan="2">구분</th><th class="g bl" colspan="4">직방 광고매물</th><th class="g bl" colspan="2">11/10 대비 증감</th></tr>
+      <tr><th class="bl">11/1 (선정)</th><th>11/10 (영업 직전)</th><th>11/17 (1주차 말)</th><th>11/24 (2주차 말)</th><th class="bl">1주차</th><th>2주차</th></tr>
+    </thead>
     <tbody>
-      <tr><td>매물 문의</td><td>3,511</td><td>3,619</td></tr>
-      <tr><td>단지 문의</td><td>985</td><td>1,082</td></tr>
-      <tr class="sum"><td>매물+단지 문의</td><td>4,496</td><td>4,701</td></tr>
-      <tr><td class="g">　└ 단지 연결 문의 (표 1·4 기준)</td><td>4,426</td><td>4,585</td></tr>
-      <tr><td class="g">　└ 단지 미연결 문의</td><td>70</td><td>116</td></tr>
-      <tr><td>중개사 문의 (단지 없음, 원룸 수요 섞임)</td><td>1,282</td><td>1,360</td></tr>
-      <tr><td>합계 (중개사 문의 포함)</td><td>5,778</td><td>6,061</td></tr>
+      <tr class="hl"><td>우선 단지 (1~2,000위)</td><td class="bl">5,339</td><td>8,760</td><td>10,387</td><td>11,766</td><td class="bl up">+18.6%</td><td class="up">+34.3%</td></tr>
+      <tr><td>그 외 단지</td><td class="bl">246,385</td><td>277,788</td><td>294,415</td><td>303,512</td><td class="bl up">+6.0%</td><td class="up">+9.3%</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tw"><table class="grp">
+    <thead>
+      <tr><th class="l" rowspan="2">구분</th><th class="g bl" colspan="2">매물 늘어난 단지 비율</th><th class="g bl" colspan="2">11/10 0건 단지 중 매물 생긴 비율</th></tr>
+      <tr><th class="bl">1주차 (11/17)</th><th>2주차 (11/24)</th><th class="bl">1주차 (11/17)</th><th>2주차 (11/24)</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hl"><td>우선 단지 (1~2,000위)</td><td class="bl">28.7%</td><td>40.0%</td><td class="bl">12.2%</td><td>22.7%</td></tr>
+      <tr><td>그 외 단지</td><td class="bl">15.4%</td><td>19.5%</td><td class="bl">3.4%</td><td>5.9%</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">각 기준일 시점의 직방 아파트 노출 매물 수(잔량). 증감과 비율은 모두 11/10(영업 직전) 대비 누적. 매물 늘어난 단지 비율 = 기준일 매물이 11/10보다 많은 단지 ÷ 전체 단지. 0건 단지 중 매물 생긴 비율 = 11/10 매물 0건 단지 중 기준일 매물 1건 이상인 단지 비율. 그 외 단지(29,274곳)에는 매물이 원래 많은 단지(10건 이상)가 포함돼 증가율이 낮게 나오고, 매물이 많은 단지는 1건만 늘어도 '매물 늘어난 단지'로 잡힘. 그 외 단지의 매물 0건 단지 수는 29,274곳에서 11/10 매물이 있던 단지를 빼서 추정함.</p></div>
+</section>
+
+<section class="sec">
+  <h3><span class="num">03</span>영업 2주 매물 구간 이동 (11/10 → 11/24)</h3>
+  <div class="panel"><div class="tw"><table>
+    <thead><tr><th class="l">11/10 구간</th><th>단지 수</th><th>11/24 0~2건</th><th>11/24 3~9건</th><th>11/24 10건+</th></tr></thead>
+    <tbody>
+      <tr><td>0~2건</td><td>1,036</td><td>873</td><td class="c">141</td><td class="c">22</td></tr>
+      <tr><td>3~9건</td><td>778</td><td>50</td><td>579</td><td class="c">149</td></tr>
+      <tr><td>10건+</td><td>186</td><td>1</td><td>14</td><td>171</td></tr>
+      <tr class="sum"><td>합계</td><td>2,000</td><td>924</td><td>734</td><td>342</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">강조 칸이 영업 2주 동안 위 구간으로 올라간 단지임 (141 + 22 + 149 = 312곳). 1주차 말(11/17) 기준으로는 189곳임(표 6). 11/10 구간은 11/1 선정 이후 매물이 변해 선정 당시 구간(0~2건 1,179곳, 3~9건 821곳)과 다름.</p></div>
+</section>
+
+<section class="sec">
+  <h3><span class="num">04</span>매물 변화 그룹별 주차별 문의 (우선 단지)</h3>
+  <div class="panel"><div class="tw"><table class="grp">
+    <thead>
+      <tr><th class="l" rowspan="2">그룹 (11/10 → 11/24 매물)</th><th rowspan="2">단지 수</th><th class="g bl" colspan="2">직방 광고매물</th><th class="g bl" colspan="3">문의</th><th class="g bl" colspan="2">직전 1주 대비</th></tr>
+      <tr><th class="bl">11/10</th><th>11/24</th><th class="bl">직전 1주</th><th>1주차</th><th>2주차</th><th class="bl">1주차</th><th>2주차</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>위 구간으로 이동</td><td>312</td><td class="bl">1,239</td><td>3,588</td><td class="bl">104</td><td>172</td><td>193</td><td class="bl up">+65.4%</td><td class="up">+85.6%</td></tr>
+      <tr><td>구간 안에서 증가</td><td>488</td><td class="bl">3,002</td><td>4,241</td><td class="bl">217</td><td>236</td><td>254</td><td class="bl up">+8.8%</td><td class="up">+17.1%</td></tr>
+      <tr class="hl"><td>매물 증가 소계</td><td>800</td><td class="bl">4,241</td><td>7,829</td><td class="bl">321</td><td>408</td><td>447</td><td class="bl up">+27.1%</td><td class="up">+39.3%</td></tr>
+      <tr><td>동일</td><td>915</td><td class="bl">1,854</td><td>1,854</td><td class="bl">207</td><td>166</td><td>142</td><td class="bl down">−19.8%</td><td class="down">−31.4%</td></tr>
+      <tr><td>감소</td><td>285</td><td class="bl">2,665</td><td>2,083</td><td class="bl">130</td><td>144</td><td>97</td><td class="bl up">+10.8%</td><td class="down">−25.4%</td></tr>
+      <tr class="ref"><td>매물 그대로·감소 소계</td><td>1,200</td><td class="bl">4,519</td><td>3,937</td><td class="bl">337</td><td>310</td><td>239</td><td class="bl down">−8.0%</td><td class="down">−29.1%</td></tr>
+      <tr class="sum"><td>우선 단지 합계</td><td>2,000</td><td class="bl">8,760</td><td>11,766</td><td class="bl">658</td><td>718</td><td>686</td><td class="bl up">+9.1%</td><td class="up">+4.3%</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">그룹은 11/10 → 11/24 매물 변화 기준. 문의 = 직방+호갱노노 단지별 문의 합계(단지 정보가 없는 중개사 문의 제외). 그룹별 단지 수가 작아 증감률이 크게 출렁일 수 있음.</p></div>
+</section>
+
+<section class="sec">
+  <h3><span class="num">05</span>플랫폼 전체 문의 유형별 주차별 추이</h3>
+  <div class="panel"><div class="tw"><table>
+    <thead><tr><th class="l">문의 유형 (직방+호갱노노)</th><th>직전 1주</th><th>1주차</th><th>2주차</th></tr></thead>
+    <tbody>
+      <tr><td>매물 문의</td><td>5,143</td><td>5,368</td><td>5,299</td></tr>
+      <tr><td>단지 문의</td><td>1,498</td><td>1,595</td><td>1,370</td></tr>
+      <tr class="sum"><td>매물+단지 문의</td><td>6,641</td><td>6,963</td><td>6,669</td></tr>
+      <tr><td class="g">　└ 단지 연결 문의 (표 1·4 기준)</td><td>6,530</td><td>6,779</td><td>6,375</td></tr>
+      <tr><td class="g">　└ 단지 미연결 문의</td><td>111</td><td>184</td><td>294</td></tr>
+      <tr><td>중개사 문의 (단지 없음, 원룸 수요 섞임)</td><td>1,932</td><td>2,087</td><td>1,924</td></tr>
+      <tr><td>합계 (중개사 문의 포함)</td><td>8,573</td><td>9,050</td><td>8,593</td></tr>
     </tbody>
   </table></div>
   <p class="note">중개사 문의는 문의 시점에 아파트 상품을 보유한 중개사의 프로필로 들어온 문의 전체라, 원룸을 보다가 문의한 경우도 포함됨. LIGHT 무료제공(9/29~) 이후 크게 늘었고 원룸 수요가 많이 섞여 있어 아파트 문의 추이에서는 제외해서 봄(표 6). 표 1·4는 직방 단지에 연결되는 문의만 단지별로 더한 값이라, 단지 정보가 없거나 호갱노노 단지가 직방 단지에 매핑되지 않는 문의는 빠짐.</p></div>
@@ -149,11 +166,12 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
     <thead><tr><th class="l">항목</th><th>값</th></tr></thead>
     <tbody>
       <tr><td>우선 단지 중 11/10 매물 0건 단지</td><td>524</td></tr>
-      <tr><td>└ 11/15 매물 1건 이상</td><td>41</td></tr>
-      <tr><td>우선 단지 매물 0건 단지 11/1 → 11/10 → 11/15</td><td>617 → 524 → 494</td></tr>
+      <tr><td>└ 매물 1건 이상 생긴 단지 11/17 → 11/24</td><td>64 → 119</td></tr>
+      <tr><td>우선 단지 매물 0건 단지 11/1 → 11/10 → 11/17 → 11/24</td><td>617 → 524 → 479 → 446</td></tr>
       <tr><td>그 외 단지 중 11/10 매물 0건 단지 (추정)</td><td>16,472</td></tr>
-      <tr><td>└ 11/15 매물 1건 이상</td><td>386</td></tr>
-      <tr><td>두 기간 모두 문의 0건 단지 (우선 단지 2,000곳 중)</td><td>1,483</td></tr>
+      <tr><td>└ 매물 1건 이상 생긴 단지 11/17 → 11/24</td><td>553 → 974</td></tr>
+      <tr><td>우선 단지 중 위 구간으로 이동한 단지 11/17 → 11/24 (11/10 대비)</td><td>189 → 312</td></tr>
+      <tr><td>세 주 모두 문의 0건 단지 (우선 단지 2,000곳 중)</td><td>1,198</td></tr>
       <tr><td>직방 LIGHT 중개사 문의 9/21주 → 11/9주</td><td>15 → 676</td></tr>
       <tr><td>LIGHT 중개사 문의 유저 표본 300명 중 4주간 아파트 조회 있음</td><td>116</td></tr>
       <tr><td>└ 같은 표본 중 원룸·오피스텔·빌라 조회 있음</td><td>273</td></tr>
@@ -166,9 +184,10 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
 <section class="sec">
   <h3><span class="num">07</span>해석과 한계</h3>
   <div class="panel"><ul class="plain">
-    <li><span class="inf">[추론]</span> 영업 시작 후 우선 단지 문의(+11.7%)가 같은 조건 그 외 단지(−4.3%)와 반대로 움직였고, 매물이 늘어난 우선 단지에 증가가 집중됨. 영업이 매물 확보를 거쳐 문의로 이어졌을 가능성이 있음.</li>
-    <li>영업 기간 매물 증가율은 우선 단지(+12.2%)가 그 외 단지(+4.2%)보다 높았음. 다만 그 외 단지에는 매물이 원래 많은 단지가 포함돼 증가율이 낮게 나오는 점을 감안해야 함.</li>
-    <li>영업 후 기간이 5일뿐이고 단지당 문의가 적어(2,000곳 중 1,483곳은 두 기간 모두 0건) 우연에 의한 차이일 가능성도 있음. 2~4주 누적 후 같은 비교로 재확인 필요.</li>
+    <li><span class="inf">[추론]</span> 2주차에 그 외 단지 문의가 −3.1%로 줄었는데도 우선 단지는 +4.3%로 직전보다 많았고, 같은 선정 조건 단지는 두 주 모두 줄었음. 영업이 매물 확보를 거쳐 문의로 이어졌을 가능성이 있음.</li>
+    <li>매물이 늘어난 우선 단지의 문의 증가는 1주차 +27.1%에서 2주차 +39.3%로 커졌음. 다만 그룹을 11/24 매물 결과로 나눠, 원래 문의가 많아질 단지에 매물이 더 붙은 영향도 섞였을 수 있음.</li>
+    <li>11/10 대비 매물 증가율은 우선 단지(+34.3%)가 그 외 단지(+9.3%)보다 높았음. 다만 그 외 단지에는 매물이 원래 많은 단지가 포함돼 증가율이 낮게 나오는 점을 감안해야 함.</li>
+    <li>단지당 문의가 적어(2,000곳 중 1,198곳은 세 주 모두 0건) 주별 수치가 출렁일 수 있음. 4주 누적 후 같은 비교로 재확인 필요.</li>
     <li>우선 단지 중 실제 영업 접촉 단지 기록과 대조하면 영업 효과를 더 정확히 분리할 수 있음.</li>
   </ul></div>
 </section>
@@ -181,16 +200,17 @@ details.fold > summary:focus-visible { outline: 2px solid var(--accent); outline
       <tr><td>대상</td><td class="t">11/1 직방 광고매물 0~9건 단지 중 최근 3주(10/12~11/1) 단지 조회 유저·관심 등록 점수 상위 2,000곳 (11/5 보고, 11/11 단지 영업 시작)</td></tr>
       <tr><td>그 외 단지</td><td class="t">표 1·2: 우선 단지를 뺀 나머지 아파트 단지 전체(29,274곳)</td></tr>
       <tr><td>같은 선정 조건 단지</td><td class="t">우선 단지 2,000곳을 고를 때 쓴 후보군에서 순위만 2,000위 밖으로 밀린 단지임. 조건은 같은데 조회·관심 점수가 낮아서 뽑히지 않은 단지들임(표 1 하위 행). 후보군 조건 = 11/1 매물 0~9건, 아파트 유형, 임대 아님, 100세대 이상, 분양·입주 6개월 이상 남은 입주예정 아님, 분당구·영통구·동탄구·파주시 제외</td></tr>
-      <tr><td>매물</td><td class="t">직방 아파트 노출 매물 수, 11/1 · 11/10 · 11/15 (11/15가 최신 적재일)</td></tr>
+      <tr><td>매물</td><td class="t">직방 아파트 노출 매물 수, 11/1 · 11/10 · 11/17 · 11/24 (11/24가 최신 적재일)</td></tr>
       <tr><td>구간</td><td class="t">0~2건 / 3~9건 / 10건+</td></tr>
-      <tr><td>문의</td><td class="t">직방+호갱노노 문의 수(행동로그 = 문의 버튼 클릭 기준, 매물·단지 문의). 영업 직전 5일 11/4(수)~11/8(일) · 영업 첫 5일 11/11(수)~11/15(일). 11/9~11/10은 비교에서 제외</td></tr>
-      <tr><td>출처</td><td class="t">사내 큐브 zb_daily_operating_item, zb_apart_view_wish_call, hg_apart_view_wish_call (2026-11-16 조회)</td></tr>
+      <tr><td>문의</td><td class="t">직방+호갱노노 문의 수(행동로그 = 문의 버튼 클릭 기준, 매물·단지 문의). 주차는 수~화 7일: 직전 1주 11/4~11/10 · 1주차 11/11~11/17 · 2주차 11/18~11/24</td></tr>
+      <tr><td>출처</td><td class="t">사내 큐브 zb_daily_operating_item, zb_apart_view_wish_call, hg_apart_view_wish_call (2026-11-25 조회)</td></tr>
     </tbody>
   </table></div>
   <p class="note">응답원장(채팅·콜백·전화)은 채팅 문의 중 일부만 단지에 연결돼 단지 단위 집계가 어려움. 그래서 단지 비교는 행동로그 기준으로 함.</p></div>
 </section>
 
-<p class="foot">검증 상태: 수치는 2026-11-16 사내 큐브 조회 결과로 계산했음. 외부 자료는 사용하지 않았음.</p>
+<p class="foot">검증 상태: 수치는 2026-11-25 사내 큐브 조회 결과(최신 적재 11/24)로 계산했음. 외부 자료는 사용하지 않았음.</p>
+
 <p class="morelink"><a class="panelink" href="#sales">초기 영업 성과 보기 →</a></p>
 
 </div>
